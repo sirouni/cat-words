@@ -76,126 +76,281 @@ body {
 .cat-name { font-size: 18px; font-weight: 700; margin-bottom: 2px; margin-top: 4px; }
 .cat-stage { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
 
-/* ===== Animated Cat ===== */
-.cat-scene {
+/* ===== Room Scene ===== */
+.cat-room {
   position: relative;
-  width: 180px;
-  height: 160px;
+  width: 100%;
+  height: 200px;
   margin: 0 auto 8px;
+  border-radius: 12px;
+  overflow: hidden;
   cursor: pointer;
   user-select: none;
+  /* Room background */
+  background:
+    linear-gradient(180deg, #E8D5B7 0%, #E8D5B7 55%, #C9A96E 55%, #C9A96E 58%, #A0734A 58%, #A0734A 100%);
 }
-/* Breathing idle */
-.cat-body-wrap {
+/* Wall decoration */
+.room-wall-stripe {
   position: absolute;
-  bottom: 10px;
+  top: 0; left: 0; right: 0;
+  height: 55%;
+  background: repeating-linear-gradient(90deg, transparent 0px, transparent 78px, #DCC8A4 78px, #DCC8A4 80px);
+  pointer-events: none;
+}
+/* Window */
+.room-window {
+  position: absolute;
+  top: 10px;
+  right: 30px;
+  width: 64px;
+  height: 52px;
+  background: linear-gradient(180deg, #87CEEB 0%, #B0E0F6 60%, #D4F1FF 100%);
+  border: 3px solid #8B7355;
+  border-radius: 4px;
+  z-index: 1;
+}
+.room-window::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
   left: 50%;
+  width: 2px;
+  background: #8B7355;
   transform: translateX(-50%);
+}
+.room-window::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 2px;
+  background: #8B7355;
+  transform: translateY(-50%);
+}
+/* Curtains */
+.room-curtain {
+  position: absolute;
+  top: 6px;
+  width: 14px;
+  height: 54px;
+  z-index: 2;
+}
+.room-curtain.l { right: 80px; border-radius: 0 0 0 8px; background: linear-gradient(180deg, #E88E8E, #D46A6A); }
+.room-curtain.r { right: 18px; border-radius: 0 0 8px 0; background: linear-gradient(180deg, #E88E8E, #D46A6A); }
+/* Picture frame on wall */
+.room-picture {
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  width: 40px;
+  height: 32px;
+  background: linear-gradient(135deg, #98D8A0, #7BC47F);
+  border: 3px solid #8B7355;
+  border-radius: 2px;
+  z-index: 1;
+}
+.room-picture::after {
+  content: '🌸';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+}
+/* Cat bed */
+.room-bed {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+  width: 56px;
+  height: 22px;
+  background: #E88E8E;
+  border-radius: 28px 28px 6px 6px;
+  z-index: 2;
+}
+.room-bed::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 4px;
+  right: 4px;
+  height: 10px;
+  background: #D47272;
+  border-radius: 0 0 4px 4px;
+}
+/* Food bowl */
+.room-bowl {
+  position: absolute;
+  bottom: 6px;
+  right: 50px;
+  width: 28px;
+  height: 12px;
+  background: #74b9ff;
+  border-radius: 4px 4px 14px 14px;
+  z-index: 2;
+}
+.room-bowl::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  right: 4px;
+  height: 4px;
+  background: #FDCB6E;
+  border-radius: 50%;
+}
+/* Yarn ball */
+.room-yarn {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 40% 40%, #E84393, #C44569);
+  border-radius: 50%;
+  z-index: 2;
+}
+.room-yarn::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  width: 12px;
+  height: 8px;
+  border-bottom: 2px solid #E84393;
+  border-radius: 0 0 50% 50%;
+}
+/* Bookshelf */
+.room-shelf {
+  position: absolute;
+  top: 26px;
+  left: 76px;
+  width: 40px;
+  height: 6px;
+  background: #8B7355;
+  border-radius: 1px;
+  z-index: 1;
+}
+.room-shelf::before {
+  content: '📕📗';
+  position: absolute;
+  top: -16px;
+  left: 2px;
+  font-size: 12px;
+  letter-spacing: -2px;
+}
+
+/* ===== Animated Cat (in room) ===== */
+.cat-sprite {
+  position: absolute;
+  z-index: 5;
+  transition: left 1.8s ease-in-out, bottom 1.8s ease-in-out;
+  pointer-events: none;
+}
+.cat-body-wrap {
   animation: catBreathe 3s ease-in-out infinite;
 }
 @keyframes catBreathe {
-  0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
-  50% { transform: translateX(-50%) translateY(-4px) scale(1.02); }
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.02); }
 }
-/* Shadow */
+/* Walking animation overrides breathing */
+.cat-sprite.walking .cat-body-wrap {
+  animation: catWalk 0.3s ease-in-out infinite;
+}
+@keyframes catWalk {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+/* Flip cat to face left */
+.cat-sprite.face-left .cat-body-wrap { transform: scaleX(-1); }
+.cat-sprite.face-left.walking .cat-body-wrap { animation: catWalkLeft 0.3s ease-in-out infinite; }
+@keyframes catWalkLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  50% { transform: scaleX(-1) translateY(-4px); }
+}
+/* Sleeping */
+.cat-sprite.sleeping .cat-eye { animation: none; transform: scaleY(0.15); }
+.cat-sprite.sleeping .cat-eye::after { display: none; }
+.cat-sprite.sleeping .cat-zzz { display: block; }
+/* Happy */
+.cat-sprite.happy .cat-eye { height: 4px; border-radius: 4px 4px 0 0; animation: none; }
+.cat-sprite.happy .cat-eye::after { display: none; }
+.cat-sprite.happy .cat-tail { animation: tailWagFast 0.4s ease-in-out infinite; }
+/* Hungry */
+.cat-sprite.hungry .cat-eye { animation: none; }
+/* Playing */
+.cat-sprite.playing .cat-body-wrap { animation: catPlay 0.5s ease-in-out infinite; }
+@keyframes catPlay {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-5px) rotate(-3deg); }
+  75% { transform: translateY(-2px) rotate(3deg); }
+}
+/* Cat shadow */
 .cat-shadow {
   position: absolute;
-  bottom: 4px;
+  bottom: -2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 70px;
-  height: 12px;
-  background: radial-gradient(ellipse, rgba(0,0,0,0.10) 0%, transparent 70%);
+  width: 40px;
+  height: 8px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, transparent 70%);
   border-radius: 50%;
-  animation: shadowPulse 3s ease-in-out infinite;
-}
-@keyframes shadowPulse {
-  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.6; }
-  50% { transform: translateX(-50%) scaleX(0.9); opacity: 0.4; }
 }
 /* Cat body */
 .cat-body {
-  width: 80px;
-  height: 60px;
-  border-radius: 40px 40px 30px 30px;
+  width: 50px;
+  height: 38px;
+  border-radius: 25px 25px 20px 20px;
   position: relative;
   margin: 0 auto;
 }
 /* Stage sizing */
-.cat-scene.stage-0 .cat-body-wrap { transform: translateX(-50%) scale(0.55); }
-.cat-scene.stage-0 .cat-shadow { width: 40px; }
-.cat-scene.stage-1 .cat-body-wrap { transform: translateX(-50%) scale(0.7); }
-.cat-scene.stage-1 .cat-shadow { width: 50px; }
-.cat-scene.stage-2 .cat-body-wrap { transform: translateX(-50%) scale(0.85); }
-.cat-scene.stage-2 .cat-shadow { width: 60px; }
-.cat-scene.stage-3 .cat-body-wrap { transform: translateX(-50%) scale(1); }
-.cat-scene.stage-4 .cat-body-wrap { transform: translateX(-50%) scale(1.05); }
-.cat-scene.stage-4 .cat-shadow { width: 75px; }
-/* Reapply breathing for each stage */
-.cat-scene.stage-0 .cat-body-wrap { animation: catBreathe0 3s ease-in-out infinite; }
-@keyframes catBreathe0 {
-  0%, 100% { transform: translateX(-50%) scale(0.55) translateY(0); }
-  50% { transform: translateX(-50%) scale(0.57) translateY(-4px); }
-}
-.cat-scene.stage-1 .cat-body-wrap { animation: catBreathe1 3s ease-in-out infinite; }
-@keyframes catBreathe1 {
-  0%, 100% { transform: translateX(-50%) scale(0.7) translateY(0); }
-  50% { transform: translateX(-50%) scale(0.72) translateY(-4px); }
-}
-.cat-scene.stage-2 .cat-body-wrap { animation: catBreathe2 3s ease-in-out infinite; }
-@keyframes catBreathe2 {
-  0%, 100% { transform: translateX(-50%) scale(0.85) translateY(0); }
-  50% { transform: translateX(-50%) scale(0.87) translateY(-4px); }
-}
-.cat-scene.stage-4 .cat-body-wrap { animation: catBreathe4 3s ease-in-out infinite; }
-@keyframes catBreathe4 {
-  0%, 100% { transform: translateX(-50%) scale(1.05) translateY(0); }
-  50% { transform: translateX(-50%) scale(1.07) translateY(-4px); }
-}
+.cat-sprite.stage-0 { transform: scale(0.6); }
+.cat-sprite.stage-1 { transform: scale(0.75); }
+.cat-sprite.stage-2 { transform: scale(0.88); }
+.cat-sprite.stage-3 { transform: scale(1); }
+.cat-sprite.stage-4 { transform: scale(1.08); }
 /* Head */
 .cat-head {
-  width: 64px;
-  height: 56px;
+  width: 42px;
+  height: 36px;
   border-radius: 50% 50% 45% 45%;
   position: absolute;
-  top: -40px;
+  top: -26px;
   left: 50%;
   transform: translateX(-50%);
 }
-/* Ears */
 .cat-ear {
   position: absolute;
-  top: -10px;
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
+  top: -7px;
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
 }
-.cat-ear.left { left: 4px; transform: rotate(-10deg); }
-.cat-ear.right { right: 4px; transform: rotate(10deg); }
+.cat-ear.left { left: 3px; transform: rotate(-10deg); }
+.cat-ear.right { right: 3px; transform: rotate(10deg); }
 .cat-ear-inner {
   position: absolute;
-  top: -8px;
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 10px solid #FFB5B5;
+  top: -5px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid #FFB5B5;
 }
-.cat-ear-inner.left { left: 6px; transform: rotate(-10deg); }
-.cat-ear-inner.right { right: 6px; transform: rotate(10deg); }
-/* Eyes */
+.cat-ear-inner.left { left: 5px; transform: rotate(-10deg); }
+.cat-ear-inner.right { right: 5px; transform: rotate(10deg); }
 .cat-eyes {
   position: absolute;
-  top: 18px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 16px;
+  gap: 10px;
 }
 .cat-eye {
-  width: 10px;
-  height: 12px;
+  width: 7px; height: 8px;
   background: #2D3436;
   border-radius: 50%;
   position: relative;
@@ -204,10 +359,8 @@ body {
 .cat-eye::after {
   content: '';
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 3px;
-  height: 3px;
+  top: 1px; right: 1px;
+  width: 2px; height: 2px;
   background: white;
   border-radius: 50%;
 }
@@ -215,94 +368,56 @@ body {
   0%, 42%, 48%, 100% { transform: scaleY(1); }
   45% { transform: scaleY(0.1); }
 }
-/* Happy eyes (when fed/petted) */
-.cat-scene.happy .cat-eye {
-  height: 4px;
-  border-radius: 4px 4px 0 0;
-  animation: none;
-}
-.cat-scene.happy .cat-eye::after { display: none; }
-/* Hungry eyes */
-.cat-scene.hungry .cat-eye {
-  animation: none;
-}
-.cat-scene.hungry .cat-eye::after {
-  width: 4px;
-  height: 4px;
-  top: 1px;
-}
-/* Nose */
 .cat-nose {
   position: absolute;
-  top: 30px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
-  height: 4px;
+  width: 4px; height: 3px;
   background: #FF7675;
-  border-radius: 50% 50% 40% 40%;
+  border-radius: 50%;
 }
-/* Mouth */
 .cat-mouth {
   position: absolute;
-  top: 33px;
+  top: 22px;
   left: 50%;
   transform: translateX(-50%);
-  width: 12px;
-  height: 6px;
+  width: 8px; height: 4px;
   display: flex;
-  gap: 0;
 }
 .cat-mouth::before, .cat-mouth::after {
   content: '';
-  width: 6px;
-  height: 6px;
-  border-bottom: 2px solid #636E72;
+  width: 4px; height: 4px;
+  border-bottom: 1.5px solid #636E72;
   border-radius: 0 0 50% 50%;
 }
-/* Hungry mouth (frown) */
-.cat-scene.hungry .cat-mouth::before,
-.cat-scene.hungry .cat-mouth::after {
-  border-bottom: none;
-  border-top: 2px solid #636E72;
-  border-radius: 50% 50% 0 0;
-}
-/* Whiskers */
 .cat-whisker {
   position: absolute;
-  top: 28px;
-  width: 18px;
-  height: 1px;
+  top: 19px;
+  width: 12px; height: 1px;
   background: #B2BEC3;
 }
-.cat-whisker.l1 { left: -10px; transform: rotate(-10deg); }
-.cat-whisker.l2 { left: -12px; top: 32px; transform: rotate(5deg); }
-.cat-whisker.r1 { right: -10px; transform: rotate(10deg); }
-.cat-whisker.r2 { right: -12px; top: 32px; transform: rotate(-5deg); }
-/* Paws */
+.cat-whisker.l1 { left: -6px; transform: rotate(-10deg); }
+.cat-whisker.l2 { left: -8px; top: 22px; transform: rotate(5deg); }
+.cat-whisker.r1 { right: -6px; transform: rotate(10deg); }
+.cat-whisker.r2 { right: -8px; top: 22px; transform: rotate(-5deg); }
 .cat-paws {
   position: absolute;
-  bottom: -4px;
+  bottom: -3px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 24px;
+  gap: 16px;
 }
-.cat-paw {
-  width: 16px;
-  height: 10px;
-  border-radius: 50%;
-}
-/* Tail */
+.cat-paw { width: 10px; height: 7px; border-radius: 50%; }
 .cat-tail {
   position: absolute;
-  bottom: 10px;
-  right: -8px;
-  width: 40px;
-  height: 20px;
-  border-top: 5px solid;
-  border-right: 5px solid;
-  border-radius: 0 20px 0 0;
+  bottom: 6px;
+  right: -6px;
+  width: 26px; height: 14px;
+  border-top: 4px solid;
+  border-right: 4px solid;
+  border-radius: 0 14px 0 0;
   border-color: inherit;
   animation: tailWag 2s ease-in-out infinite;
   transform-origin: left bottom;
@@ -311,139 +426,99 @@ body {
   0%, 100% { transform: rotate(-5deg); }
   50% { transform: rotate(10deg); }
 }
-/* Happy tail wags faster */
-.cat-scene.happy .cat-tail { animation: tailWagFast 0.4s ease-in-out infinite; }
 @keyframes tailWagFast {
   0%, 100% { transform: rotate(-10deg); }
   50% { transform: rotate(15deg); }
 }
-/* Crown for king stage */
+/* Crown */
 .cat-crown {
   display: none;
   position: absolute;
-  top: -54px;
+  top: -36px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 24px;
-  animation: crownFloat 2s ease-in-out infinite;
+  font-size: 16px;
 }
-.cat-scene.stage-4 .cat-crown { display: block; }
-@keyframes crownFloat {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-4px); }
+.cat-sprite.stage-4 .cat-crown { display: block; }
+/* Zzz */
+.cat-zzz {
+  display: none;
+  position: absolute;
+  top: -28px;
+  right: -10px;
+  font-size: 12px;
+  animation: zzzFloat 2s ease-in-out infinite;
 }
-/* Floating particles (hearts, zzz, fish) */
+@keyframes zzzFloat {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-6px); }
+}
+/* Floating particles */
 .cat-particle {
   position: absolute;
   pointer-events: none;
-  font-size: 18px;
+  font-size: 16px;
   animation: particleFloat 1.5s ease forwards;
   z-index: 10;
 }
 @keyframes particleFloat {
   0% { opacity: 1; transform: translate(0, 0) scale(1); }
-  100% { opacity: 0; transform: translate(var(--px), -50px) scale(0.5); }
+  100% { opacity: 0; transform: translate(var(--px), -40px) scale(0.5); }
 }
-/* Purr vibration */
-.cat-scene.purring .cat-body-wrap {
-  animation: purr 0.1s ease-in-out 8;
-}
-@keyframes purr {
-  0%, 100% { transform: translateX(-50%) rotate(0); }
-  25% { transform: translateX(calc(-50% + 1px)) rotate(0.5deg); }
-  75% { transform: translateX(calc(-50% - 1px)) rotate(-0.5deg); }
-}
-/* Sleeping Zzz */
-.cat-zzz {
+/* Activity text bubble */
+.cat-bubble {
   display: none;
   position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 14px;
-  color: var(--text-light);
-  animation: zzzFloat 2s ease-in-out infinite;
+  top: -44px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  z-index: 8;
 }
-@keyframes zzzFloat {
-  0%, 100% { opacity: 0.3; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-8px); }
-}
-/* Cat colors: orange (default) */
-.cat-color-orange .cat-body, .cat-color-orange .cat-head { background: #F8B739; }
-.cat-color-orange .cat-ear { border-bottom: 16px solid #F8B739; }
-.cat-color-orange .cat-paw { background: #F8B739; }
-.cat-color-orange .cat-tail { border-color: #F8B739; }
-/* Stripes for orange cat */
-.cat-color-orange .cat-body::before {
+.cat-bubble::after {
   content: '';
   position: absolute;
-  top: 10px; left: 12px; right: 12px;
-  height: 4px;
-  background: repeating-linear-gradient(
-    0deg,
-    #E8A020 0px, #E8A020 3px,
-    transparent 3px, transparent 8px
-  );
-  border-radius: 2px;
-  opacity: 0.4;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid white;
 }
-/* black */
+.cat-sprite.show-bubble .cat-bubble { display: block; }
+
+/* Cat colors */
+.cat-color-orange .cat-body, .cat-color-orange .cat-head { background: #F8B739; }
+.cat-color-orange .cat-ear { border-bottom: 12px solid #F8B739; }
+.cat-color-orange .cat-paw { background: #F8B739; }
+.cat-color-orange .cat-tail { border-color: #F8B739; }
 .cat-color-black .cat-body, .cat-color-black .cat-head { background: #2D3436; }
-.cat-color-black .cat-ear { border-bottom: 16px solid #2D3436; }
+.cat-color-black .cat-ear { border-bottom: 12px solid #2D3436; }
 .cat-color-black .cat-paw { background: #2D3436; }
 .cat-color-black .cat-tail { border-color: #2D3436; }
 .cat-color-black .cat-eye { background: #00B894; }
-.cat-color-black .cat-whisker { background: #636E72; }
-/* white */
 .cat-color-white .cat-body, .cat-color-white .cat-head { background: #F5F5F5; border: 1px solid #EEE; }
-.cat-color-white .cat-ear { border-bottom: 16px solid #F5F5F5; }
+.cat-color-white .cat-ear { border-bottom: 12px solid #F5F5F5; }
 .cat-color-white .cat-paw { background: #F5F5F5; border: 1px solid #EEE; }
 .cat-color-white .cat-tail { border-color: #F5F5F5; }
-.cat-color-white .cat-ear-inner { border-bottom-color: #FFD5D5; }
-/* lion */
 .cat-color-lion .cat-body, .cat-color-lion .cat-head { background: #D4A03C; }
-.cat-color-lion .cat-ear { border-bottom: 16px solid #D4A03C; }
+.cat-color-lion .cat-ear { border-bottom: 12px solid #D4A03C; }
 .cat-color-lion .cat-paw { background: #D4A03C; }
 .cat-color-lion .cat-tail { border-color: #D4A03C; }
-.cat-color-lion .cat-head::before {
-  content: '';
-  position: absolute;
-  top: -8px; left: -10px;
-  width: 84px; height: 72px;
-  border-radius: 50%;
-  background: radial-gradient(circle, transparent 55%, #C68E2A 56%, #C68E2A 70%, transparent 71%);
-}
-/* tiger */
 .cat-color-tiger .cat-body, .cat-color-tiger .cat-head { background: #F39C12; }
-.cat-color-tiger .cat-ear { border-bottom: 16px solid #F39C12; }
+.cat-color-tiger .cat-ear { border-bottom: 12px solid #F39C12; }
 .cat-color-tiger .cat-paw { background: #F39C12; }
 .cat-color-tiger .cat-tail { border-color: #F39C12; }
-.cat-color-tiger .cat-body::before {
-  content: '';
-  position: absolute;
-  top: 6px; left: 8px; right: 8px; bottom: 8px;
-  background: repeating-linear-gradient(
-    90deg,
-    #2D3436 0px, #2D3436 3px,
-    transparent 3px, transparent 10px
-  );
-  border-radius: 20px;
-  opacity: 0.3;
-}
-/* leopard */
 .cat-color-leopard .cat-body, .cat-color-leopard .cat-head { background: #DBA553; }
-.cat-color-leopard .cat-ear { border-bottom: 16px solid #DBA553; }
+.cat-color-leopard .cat-ear { border-bottom: 12px solid #DBA553; }
 .cat-color-leopard .cat-paw { background: #DBA553; }
 .cat-color-leopard .cat-tail { border-color: #DBA553; }
-.cat-color-leopard .cat-body::after {
-  content: '● ● ●';
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  letter-spacing: 6px;
-  color: rgba(0,0,0,0.25);
-}
 
 .hearts { font-size: 20px; margin-bottom: 8px; letter-spacing: 2px; }
 
@@ -1143,26 +1218,39 @@ body {
 
   <!-- HOME PAGE -->
   <div class="page active" id="page-home">
-    <div class="cat-area">
-      <div class="cat-scene stage-0 cat-color-orange" id="catScene" onclick="petCat()">
-        <div class="cat-zzz" id="catZzz">💤</div>
-        <div class="cat-shadow"></div>
-        <div class="cat-body-wrap">
-          <div class="cat-body">
-            <div class="cat-head">
-              <div class="cat-crown">👑</div>
-              <div class="cat-ear left"><div class="cat-ear-inner left"></div></div>
-              <div class="cat-ear right"><div class="cat-ear-inner right"></div></div>
-              <div class="cat-eyes"><div class="cat-eye"></div><div class="cat-eye"></div></div>
-              <div class="cat-nose"></div>
-              <div class="cat-mouth"></div>
-              <div class="cat-whisker l1"></div>
-              <div class="cat-whisker l2"></div>
-              <div class="cat-whisker r1"></div>
-              <div class="cat-whisker r2"></div>
+    <div class="cat-area" onclick="petCat()">
+      <div class="cat-room" id="catRoom">
+        <div class="room-wall-stripe"></div>
+        <div class="room-picture"></div>
+        <div class="room-shelf"></div>
+        <div class="room-window"></div>
+        <div class="room-curtain l"></div>
+        <div class="room-curtain r"></div>
+        <div class="room-bed"></div>
+        <div class="room-bowl"></div>
+        <div class="room-yarn"></div>
+        <!-- Cat Sprite -->
+        <div class="cat-sprite stage-0 cat-color-orange" id="catSprite">
+          <div class="cat-bubble" id="catBubble">💤 睡觉中...</div>
+          <div class="cat-zzz">💤</div>
+          <div class="cat-shadow"></div>
+          <div class="cat-body-wrap">
+            <div class="cat-body">
+              <div class="cat-head">
+                <div class="cat-crown">👑</div>
+                <div class="cat-ear left"><div class="cat-ear-inner left"></div></div>
+                <div class="cat-ear right"><div class="cat-ear-inner right"></div></div>
+                <div class="cat-eyes"><div class="cat-eye"></div><div class="cat-eye"></div></div>
+                <div class="cat-nose"></div>
+                <div class="cat-mouth"></div>
+                <div class="cat-whisker l1"></div>
+                <div class="cat-whisker l2"></div>
+                <div class="cat-whisker r1"></div>
+                <div class="cat-whisker r2"></div>
+              </div>
+              <div class="cat-paws"><div class="cat-paw"></div><div class="cat-paw"></div></div>
+              <div class="cat-tail"></div>
             </div>
-            <div class="cat-paws"><div class="cat-paw"></div><div class="cat-paw"></div></div>
-            <div class="cat-tail"></div>
           </div>
         </div>
       </div>
@@ -1588,6 +1676,7 @@ function init() {
   renderAchievements();
   updateTopBar();
   updateReviewBadge();
+  startCatRoam();
 }
 
 function loadState() {
@@ -1660,13 +1749,8 @@ function renderHome() {
   const catDef = CAT_COLLECTION.find(c => c.id === state.activeCat);
   const stageEmoji = stage.emoji;
 
-  // Update animated cat
-  const scene = document.getElementById('catScene');
-  scene.className = 'cat-scene';
-  scene.classList.add(`stage-${state.catStage}`);
-  const colorMap = { orange: 'orange', black: 'black', white: 'white', lion: 'lion', tiger: 'tiger', leopard: 'leopard' };
-  scene.classList.add(`cat-color-${colorMap[state.activeCat] || 'orange'}`);
-  if (state.hungerHearts <= 1) scene.classList.add('hungry');
+  // Update cat sprite classes (preserve position-related state)
+  updateCatSprite();
 
   document.getElementById('catName').textContent = catDef ? catDef.name : '小猫';
   document.getElementById('catStage').textContent = `阶段 ${state.catStage + 1}/5 · ${stage.name}`;
@@ -1711,16 +1795,28 @@ function feedCat() {
 
   showFishAnimation();
 
-  // Happy eating animation
-  const scene = document.getElementById('catScene');
-  scene.classList.add('happy');
-  for (let i = 0; i < 3; i++) {
-    setTimeout(() => spawnCatParticle('🐟'), i * 300);
-  }
+  // Happy eating animation - cat goes to bowl
+  catIsBusy = true;
+  const sprite = document.getElementById('catSprite');
+  const bowlSpot = CAT_SPOTS.find(s => s.id === 'bowl');
+  sprite.classList.remove('sleeping', 'playing');
+  sprite.classList.add('walking');
+  sprite.style.left = bowlSpot.left + 'px';
+  sprite.style.bottom = bowlSpot.bottom + 'px';
   setTimeout(() => {
-    scene.classList.remove('happy');
+    sprite.classList.remove('walking');
+    sprite.classList.add('happy');
+    document.getElementById('catBubble').textContent = '😋 好好吃！';
+    sprite.classList.add('show-bubble');
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => spawnCatParticle('🐟'), i * 300);
+    }
+  }, 1000);
+  setTimeout(() => {
+    sprite.classList.remove('happy', 'show-bubble');
+    catIsBusy = false;
     renderHome();
-  }, 1500);
+  }, 3000);
 
   // Check level up
   const oldStage = state.catStage;
@@ -1754,31 +1850,95 @@ function showFishAnimation() {
   setTimeout(() => el.remove(), 1000);
 }
 
+// ========== ROOM AI: Cat wanders around the room ==========
+const CAT_SPOTS = [
+  { id: 'bed',    left: 20,  bottom: 28, bubble: '💤 好困呀~',    action: 'sleeping' },
+  { id: 'bowl',   left: 230, bottom: 22, bubble: '🐟 吃鱼干~',   action: 'happy' },
+  { id: 'window', left: 260, bottom: 60, bubble: '🌤️ 看风景~',   action: '' },
+  { id: 'yarn',   left: 300, bottom: 24, bubble: '🧶 好好玩！',   action: 'playing' },
+  { id: 'center', left: 150, bottom: 30, bubble: '😺 散步~',     action: '' },
+  { id: 'shelf',  left: 80,  bottom: 50, bubble: '📚 这是什么？', action: '' },
+];
+let catCurrentSpot = 0;
+let catRoamTimer = null;
+let catIsBusy = false;
+
+function startCatRoam() {
+  clearInterval(catRoamTimer);
+  moveCatToSpot(Math.floor(Math.random() * CAT_SPOTS.length));
+  catRoamTimer = setInterval(() => {
+    if (catIsBusy) return;
+    let next;
+    do { next = Math.floor(Math.random() * CAT_SPOTS.length); } while (next === catCurrentSpot);
+    moveCatToSpot(next);
+  }, 5000 + Math.random() * 4000);
+}
+
+function moveCatToSpot(idx) {
+  const sprite = document.getElementById('catSprite');
+  const spot = CAT_SPOTS[idx];
+  const oldSpot = CAT_SPOTS[catCurrentSpot];
+
+  // Face direction based on movement
+  const goingLeft = spot.left < oldSpot.left;
+  sprite.classList.remove('sleeping', 'playing', 'happy', 'show-bubble', 'face-left');
+  sprite.classList.add('walking');
+  if (goingLeft) sprite.classList.add('face-left');
+
+  sprite.style.left = spot.left + 'px';
+  sprite.style.bottom = spot.bottom + 'px';
+
+  catCurrentSpot = idx;
+
+  // After arriving, stop walking and do activity
+  setTimeout(() => {
+    sprite.classList.remove('walking');
+    if (spot.action) sprite.classList.add(spot.action);
+    document.getElementById('catBubble').textContent = spot.bubble;
+    sprite.classList.add('show-bubble');
+    setTimeout(() => sprite.classList.remove('show-bubble'), 2500);
+  }, 1800);
+}
+
+function updateCatSprite() {
+  const sprite = document.getElementById('catSprite');
+  // Keep current activity classes, update stage and color
+  ['stage-0','stage-1','stage-2','stage-3','stage-4'].forEach(c => sprite.classList.remove(c));
+  sprite.classList.add(`stage-${state.catStage}`);
+  ['cat-color-orange','cat-color-black','cat-color-white','cat-color-lion','cat-color-tiger','cat-color-leopard'].forEach(c => sprite.classList.remove(c));
+  sprite.classList.add(`cat-color-${state.activeCat}`);
+  if (state.hungerHearts <= 1) sprite.classList.add('hungry');
+  else sprite.classList.remove('hungry');
+}
+
 function petCat() {
-  const scene = document.getElementById('catScene');
-  scene.classList.add('happy', 'purring');
+  catIsBusy = true;
+  const sprite = document.getElementById('catSprite');
+  sprite.classList.remove('sleeping', 'playing', 'walking');
+  sprite.classList.add('happy');
+  document.getElementById('catBubble').textContent = '😻 喵~呼噜噜';
+  sprite.classList.add('show-bubble');
   showToast('喵~ 呼噜噜~');
 
-  // Spawn floating hearts
   for (let i = 0; i < 4; i++) {
     setTimeout(() => spawnCatParticle('❤️'), i * 200);
   }
 
   setTimeout(() => {
-    scene.classList.remove('happy', 'purring');
-    renderHome();
-  }, 2000);
+    sprite.classList.remove('happy', 'show-bubble');
+    catIsBusy = false;
+  }, 2500);
 }
 
 function spawnCatParticle(emoji) {
-  const scene = document.getElementById('catScene');
+  const sprite = document.getElementById('catSprite');
   const el = document.createElement('div');
   el.className = 'cat-particle';
   el.textContent = emoji;
-  el.style.left = (60 + Math.random() * 60) + 'px';
-  el.style.top = (20 + Math.random() * 40) + 'px';
-  el.style.setProperty('--px', (Math.random() * 40 - 20) + 'px');
-  scene.appendChild(el);
+  el.style.left = (10 + Math.random() * 30) + 'px';
+  el.style.top = (-10 + Math.random() * 20) + 'px';
+  el.style.setProperty('--px', (Math.random() * 30 - 15) + 'px');
+  sprite.appendChild(el);
   setTimeout(() => el.remove(), 1500);
 }
 
