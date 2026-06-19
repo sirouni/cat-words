@@ -1,0 +1,2892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>背单词养小猫</title>
+<style>
+:root {
+  --primary: #FF6B9D;
+  --primary-light: #FFB3D0;
+  --secondary: #4ECDC4;
+  --accent: #FFE66D;
+  --bg: #FFF5F7;
+  --card: #FFFFFF;
+  --text: #2D3436;
+  --text-light: #636E72;
+  --success: #00B894;
+  --danger: #FF7675;
+  --warning: #FDCB6E;
+  --shadow: 0 4px 15px rgba(0,0,0,0.08);
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--primary), #FF8E9E);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+.top-bar .stat { display: flex; align-items: center; gap: 4px; }
+
+/* Pages */
+.page { display: none; padding: 16px 20px 100px; }
+.page.active { display: block; }
+
+/* Home Page - Cat Area */
+.cat-area {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px 20px 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.cat-area::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+}
+.cat-name { font-size: 18px; font-weight: 700; margin-bottom: 2px; margin-top: 4px; }
+.cat-stage { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+
+/* ===== Animated Cat ===== */
+.cat-scene {
+  position: relative;
+  width: 180px;
+  height: 160px;
+  margin: 0 auto 8px;
+  cursor: pointer;
+  user-select: none;
+}
+/* Breathing idle */
+.cat-body-wrap {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: catBreathe 3s ease-in-out infinite;
+}
+@keyframes catBreathe {
+  0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+  50% { transform: translateX(-50%) translateY(-4px) scale(1.02); }
+}
+/* Shadow */
+.cat-shadow {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 12px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.10) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: shadowPulse 3s ease-in-out infinite;
+}
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 0.6; }
+  50% { transform: translateX(-50%) scaleX(0.9); opacity: 0.4; }
+}
+/* Cat body */
+.cat-body {
+  width: 80px;
+  height: 60px;
+  border-radius: 40px 40px 30px 30px;
+  position: relative;
+  margin: 0 auto;
+}
+/* Stage sizing */
+.cat-scene.stage-0 .cat-body-wrap { transform: translateX(-50%) scale(0.55); }
+.cat-scene.stage-0 .cat-shadow { width: 40px; }
+.cat-scene.stage-1 .cat-body-wrap { transform: translateX(-50%) scale(0.7); }
+.cat-scene.stage-1 .cat-shadow { width: 50px; }
+.cat-scene.stage-2 .cat-body-wrap { transform: translateX(-50%) scale(0.85); }
+.cat-scene.stage-2 .cat-shadow { width: 60px; }
+.cat-scene.stage-3 .cat-body-wrap { transform: translateX(-50%) scale(1); }
+.cat-scene.stage-4 .cat-body-wrap { transform: translateX(-50%) scale(1.05); }
+.cat-scene.stage-4 .cat-shadow { width: 75px; }
+/* Reapply breathing for each stage */
+.cat-scene.stage-0 .cat-body-wrap { animation: catBreathe0 3s ease-in-out infinite; }
+@keyframes catBreathe0 {
+  0%, 100% { transform: translateX(-50%) scale(0.55) translateY(0); }
+  50% { transform: translateX(-50%) scale(0.57) translateY(-4px); }
+}
+.cat-scene.stage-1 .cat-body-wrap { animation: catBreathe1 3s ease-in-out infinite; }
+@keyframes catBreathe1 {
+  0%, 100% { transform: translateX(-50%) scale(0.7) translateY(0); }
+  50% { transform: translateX(-50%) scale(0.72) translateY(-4px); }
+}
+.cat-scene.stage-2 .cat-body-wrap { animation: catBreathe2 3s ease-in-out infinite; }
+@keyframes catBreathe2 {
+  0%, 100% { transform: translateX(-50%) scale(0.85) translateY(0); }
+  50% { transform: translateX(-50%) scale(0.87) translateY(-4px); }
+}
+.cat-scene.stage-4 .cat-body-wrap { animation: catBreathe4 3s ease-in-out infinite; }
+@keyframes catBreathe4 {
+  0%, 100% { transform: translateX(-50%) scale(1.05) translateY(0); }
+  50% { transform: translateX(-50%) scale(1.07) translateY(-4px); }
+}
+/* Head */
+.cat-head {
+  width: 64px;
+  height: 56px;
+  border-radius: 50% 50% 45% 45%;
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+/* Ears */
+.cat-ear {
+  position: absolute;
+  top: -10px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+.cat-ear.left { left: 4px; transform: rotate(-10deg); }
+.cat-ear.right { right: 4px; transform: rotate(10deg); }
+.cat-ear-inner {
+  position: absolute;
+  top: -8px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid #FFB5B5;
+}
+.cat-ear-inner.left { left: 6px; transform: rotate(-10deg); }
+.cat-ear-inner.right { right: 6px; transform: rotate(10deg); }
+/* Eyes */
+.cat-eyes {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+}
+.cat-eye {
+  width: 10px;
+  height: 12px;
+  background: #2D3436;
+  border-radius: 50%;
+  position: relative;
+  animation: catBlink 4s ease-in-out infinite;
+}
+.cat-eye::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 3px;
+  height: 3px;
+  background: white;
+  border-radius: 50%;
+}
+@keyframes catBlink {
+  0%, 42%, 48%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(0.1); }
+}
+/* Happy eyes (when fed/petted) */
+.cat-scene.happy .cat-eye {
+  height: 4px;
+  border-radius: 4px 4px 0 0;
+  animation: none;
+}
+.cat-scene.happy .cat-eye::after { display: none; }
+/* Hungry eyes */
+.cat-scene.hungry .cat-eye {
+  animation: none;
+}
+.cat-scene.hungry .cat-eye::after {
+  width: 4px;
+  height: 4px;
+  top: 1px;
+}
+/* Nose */
+.cat-nose {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 4px;
+  background: #FF7675;
+  border-radius: 50% 50% 40% 40%;
+}
+/* Mouth */
+.cat-mouth {
+  position: absolute;
+  top: 33px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 6px;
+  display: flex;
+  gap: 0;
+}
+.cat-mouth::before, .cat-mouth::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-bottom: 2px solid #636E72;
+  border-radius: 0 0 50% 50%;
+}
+/* Hungry mouth (frown) */
+.cat-scene.hungry .cat-mouth::before,
+.cat-scene.hungry .cat-mouth::after {
+  border-bottom: none;
+  border-top: 2px solid #636E72;
+  border-radius: 50% 50% 0 0;
+}
+/* Whiskers */
+.cat-whisker {
+  position: absolute;
+  top: 28px;
+  width: 18px;
+  height: 1px;
+  background: #B2BEC3;
+}
+.cat-whisker.l1 { left: -10px; transform: rotate(-10deg); }
+.cat-whisker.l2 { left: -12px; top: 32px; transform: rotate(5deg); }
+.cat-whisker.r1 { right: -10px; transform: rotate(10deg); }
+.cat-whisker.r2 { right: -12px; top: 32px; transform: rotate(-5deg); }
+/* Paws */
+.cat-paws {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 24px;
+}
+.cat-paw {
+  width: 16px;
+  height: 10px;
+  border-radius: 50%;
+}
+/* Tail */
+.cat-tail {
+  position: absolute;
+  bottom: 10px;
+  right: -8px;
+  width: 40px;
+  height: 20px;
+  border-top: 5px solid;
+  border-right: 5px solid;
+  border-radius: 0 20px 0 0;
+  border-color: inherit;
+  animation: tailWag 2s ease-in-out infinite;
+  transform-origin: left bottom;
+}
+@keyframes tailWag {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(10deg); }
+}
+/* Happy tail wags faster */
+.cat-scene.happy .cat-tail { animation: tailWagFast 0.4s ease-in-out infinite; }
+@keyframes tailWagFast {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(15deg); }
+}
+/* Crown for king stage */
+.cat-crown {
+  display: none;
+  position: absolute;
+  top: -54px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  animation: crownFloat 2s ease-in-out infinite;
+}
+.cat-scene.stage-4 .cat-crown { display: block; }
+@keyframes crownFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+/* Floating particles (hearts, zzz, fish) */
+.cat-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 18px;
+  animation: particleFloat 1.5s ease forwards;
+  z-index: 10;
+}
+@keyframes particleFloat {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--px), -50px) scale(0.5); }
+}
+/* Purr vibration */
+.cat-scene.purring .cat-body-wrap {
+  animation: purr 0.1s ease-in-out 8;
+}
+@keyframes purr {
+  0%, 100% { transform: translateX(-50%) rotate(0); }
+  25% { transform: translateX(calc(-50% + 1px)) rotate(0.5deg); }
+  75% { transform: translateX(calc(-50% - 1px)) rotate(-0.5deg); }
+}
+/* Sleeping Zzz */
+.cat-zzz {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 14px;
+  color: var(--text-light);
+  animation: zzzFloat 2s ease-in-out infinite;
+}
+@keyframes zzzFloat {
+  0%, 100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-8px); }
+}
+/* Cat colors: orange (default) */
+.cat-color-orange .cat-body, .cat-color-orange .cat-head { background: #F8B739; }
+.cat-color-orange .cat-ear { border-bottom: 16px solid #F8B739; }
+.cat-color-orange .cat-paw { background: #F8B739; }
+.cat-color-orange .cat-tail { border-color: #F8B739; }
+/* Stripes for orange cat */
+.cat-color-orange .cat-body::before {
+  content: '';
+  position: absolute;
+  top: 10px; left: 12px; right: 12px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    0deg,
+    #E8A020 0px, #E8A020 3px,
+    transparent 3px, transparent 8px
+  );
+  border-radius: 2px;
+  opacity: 0.4;
+}
+/* black */
+.cat-color-black .cat-body, .cat-color-black .cat-head { background: #2D3436; }
+.cat-color-black .cat-ear { border-bottom: 16px solid #2D3436; }
+.cat-color-black .cat-paw { background: #2D3436; }
+.cat-color-black .cat-tail { border-color: #2D3436; }
+.cat-color-black .cat-eye { background: #00B894; }
+.cat-color-black .cat-whisker { background: #636E72; }
+/* white */
+.cat-color-white .cat-body, .cat-color-white .cat-head { background: #F5F5F5; border: 1px solid #EEE; }
+.cat-color-white .cat-ear { border-bottom: 16px solid #F5F5F5; }
+.cat-color-white .cat-paw { background: #F5F5F5; border: 1px solid #EEE; }
+.cat-color-white .cat-tail { border-color: #F5F5F5; }
+.cat-color-white .cat-ear-inner { border-bottom-color: #FFD5D5; }
+/* lion */
+.cat-color-lion .cat-body, .cat-color-lion .cat-head { background: #D4A03C; }
+.cat-color-lion .cat-ear { border-bottom: 16px solid #D4A03C; }
+.cat-color-lion .cat-paw { background: #D4A03C; }
+.cat-color-lion .cat-tail { border-color: #D4A03C; }
+.cat-color-lion .cat-head::before {
+  content: '';
+  position: absolute;
+  top: -8px; left: -10px;
+  width: 84px; height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 55%, #C68E2A 56%, #C68E2A 70%, transparent 71%);
+}
+/* tiger */
+.cat-color-tiger .cat-body, .cat-color-tiger .cat-head { background: #F39C12; }
+.cat-color-tiger .cat-ear { border-bottom: 16px solid #F39C12; }
+.cat-color-tiger .cat-paw { background: #F39C12; }
+.cat-color-tiger .cat-tail { border-color: #F39C12; }
+.cat-color-tiger .cat-body::before {
+  content: '';
+  position: absolute;
+  top: 6px; left: 8px; right: 8px; bottom: 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    #2D3436 0px, #2D3436 3px,
+    transparent 3px, transparent 10px
+  );
+  border-radius: 20px;
+  opacity: 0.3;
+}
+/* leopard */
+.cat-color-leopard .cat-body, .cat-color-leopard .cat-head { background: #DBA553; }
+.cat-color-leopard .cat-ear { border-bottom: 16px solid #DBA553; }
+.cat-color-leopard .cat-paw { background: #DBA553; }
+.cat-color-leopard .cat-tail { border-color: #DBA553; }
+.cat-color-leopard .cat-body::after {
+  content: '● ● ●';
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 6px;
+  color: rgba(0,0,0,0.25);
+}
+
+.hearts { font-size: 20px; margin-bottom: 8px; letter-spacing: 2px; }
+
+.progress-bar {
+  background: #F0F0F0;
+  border-radius: 10px;
+  height: 14px;
+  overflow: hidden;
+  margin: 8px 0;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--secondary), var(--success));
+  transition: width 0.5s ease;
+}
+.progress-label {
+  font-size: 12px;
+  color: var(--text-light);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Feed Button */
+.feed-btn {
+  margin-top: 12px;
+  background: linear-gradient(135deg, var(--accent), #FFA502);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5D4E37;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 3px 10px rgba(255,165,2,0.3);
+}
+.feed-btn:hover { transform: scale(1.05); }
+.feed-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* Quick Stats */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-card .num { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-card .label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+/* Action Buttons */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.action-btn {
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+.action-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+.action-btn .icon { font-size: 32px; margin-bottom: 6px; }
+.action-btn .title { font-size: 15px; font-weight: 600; }
+.action-btn .desc { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+
+.action-btn.daily {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  text-align: left;
+}
+.action-btn.daily .icon { font-size: 36px; margin-bottom: 0; }
+.action-btn.daily .desc { color: rgba(255,255,255,0.8); }
+
+/* Unit Select Page */
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.unit-list { display: flex; flex-direction: column; gap: 12px; }
+.unit-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.unit-card:hover { transform: translateX(4px); border-left: 3px solid var(--primary); }
+.unit-card .info .name { font-size: 16px; font-weight: 600; }
+.unit-card .info .meta { font-size: 12px; color: var(--text-light); margin-top: 3px; }
+.unit-card .stars { font-size: 18px; letter-spacing: 1px; }
+
+/* Learn Page */
+.learn-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 40px 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.learn-card.flipped { background: linear-gradient(135deg, #DFE6E9, #F8F9FA); }
+.learn-word { font-size: 36px; font-weight: 700; color: var(--primary); }
+.learn-phonetic { font-size: 16px; color: var(--text-light); margin-top: 8px; }
+.learn-meaning { font-size: 24px; margin-top: 16px; color: var(--text); }
+.learn-hint { font-size: 13px; color: var(--text-light); margin-top: 20px; }
+.learn-progress { font-size: 13px; color: var(--text-light); margin: 16px 0; }
+
+.learn-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.learn-actions button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-know {
+  background: linear-gradient(135deg, var(--success), #00CEC9);
+  color: white;
+}
+.btn-next {
+  background: linear-gradient(135deg, var(--primary), #FF8E9E);
+  color: white;
+}
+.btn-hard {
+  background: linear-gradient(135deg, var(--danger), #E17055);
+  color: white;
+}
+
+/* Quiz Page */
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.quiz-score { font-size: 14px; color: var(--text-light); }
+.combo { color: var(--primary); font-weight: 700; }
+
+.quiz-question {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 30px 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.quiz-prompt { font-size: 14px; color: var(--text-light); margin-bottom: 8px; }
+.quiz-word { font-size: 32px; font-weight: 700; color: var(--primary); }
+.quiz-meaning-q { font-size: 28px; font-weight: 700; }
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.quiz-option {
+  background: var(--card);
+  border: 2px solid #EEE;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.quiz-option:hover { border-color: var(--primary); background: #FFF0F5; }
+.quiz-option.correct {
+  border-color: var(--success);
+  background: #E8FFF5;
+  animation: correctPulse 0.5s;
+}
+.quiz-option.wrong {
+  border-color: var(--danger);
+  background: #FFE8E8;
+  animation: shake 0.5s;
+}
+.quiz-option.disabled { pointer-events: none; }
+
+@keyframes correctPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Result overlay */
+.result-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+.result-overlay.active { display: flex; }
+.result-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 36px 30px;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+  animation: popIn 0.3s ease;
+}
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.result-card .emoji { font-size: 60px; margin-bottom: 12px; }
+.result-card h2 { font-size: 22px; margin-bottom: 8px; }
+.result-card p { font-size: 14px; color: var(--text-light); margin-bottom: 6px; }
+.result-card .reward { font-size: 18px; font-weight: 700; color: var(--accent); margin: 12px 0; }
+.result-card button {
+  margin-top: 16px;
+  background: linear-gradient(135deg, var(--primary), #FF8E9E);
+  color: white;
+  border: none;
+  padding: 12px 36px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Cats Collection Page */
+.cats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.cat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 10px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cat-card:hover { transform: translateY(-3px); }
+.cat-card.locked { opacity: 0.5; filter: grayscale(1); }
+.cat-card.active-cat { border: 2px solid var(--primary); }
+.cat-card .cat-icon { font-size: 40px; }
+.cat-card .cat-card-name { font-size: 12px; font-weight: 600; margin-top: 4px; }
+.cat-card .cat-card-status { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+
+/* Achievement Page */
+.achievement-list { display: flex; flex-direction: column; gap: 10px; }
+.achievement-item {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.achievement-item.locked { opacity: 0.5; }
+.achievement-item .badge { font-size: 30px; }
+.achievement-item .ach-info .ach-name { font-size: 14px; font-weight: 600; }
+.achievement-item .ach-info .ach-desc { font-size: 11px; color: var(--text-light); }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 15px rgba(0,0,0,0.06);
+  z-index: 50;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 12px;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  transition: color 0.2s;
+}
+.nav-item.active { color: var(--primary); }
+.nav-item .nav-icon { font-size: 22px; }
+.nav-item .nav-label { font-size: 10px; margin-top: 2px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 14px;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Fish animation */
+.fish-float {
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 150;
+  animation: fishUp 1s ease forwards;
+}
+@keyframes fishUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-60px); }
+}
+
+/* Level up animation */
+.levelup-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+}
+.levelup-overlay.active { display: flex; }
+.levelup-card {
+  text-align: center;
+  animation: popIn 0.5s ease;
+}
+.levelup-card .new-cat { font-size: 120px; animation: catBounce 1s ease-in-out infinite; }
+.levelup-card h2 { color: white; font-size: 28px; margin-top: 16px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.levelup-card p { color: rgba(255,255,255,0.9); font-size: 16px; margin-top: 8px; }
+.levelup-card button {
+  margin-top: 24px;
+  background: var(--accent);
+  border: none;
+  padding: 12px 40px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #5D4E37;
+  cursor: pointer;
+}
+
+/* Confetti */
+.confetti {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  z-index: 201;
+  animation: confettiFall 2s linear forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Review badge */
+.review-badge {
+  display: inline-block;
+  background: var(--danger);
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* Games Section */
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ===== SNAKE GAME ===== */
+.snake-area {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.snake-word-hint {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+.snake-target {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.snake-spelled {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--success);
+  letter-spacing: 3px;
+  min-height: 26px;
+  margin-bottom: 8px;
+}
+.snake-canvas {
+  border: 2px solid #EEE;
+  border-radius: 12px;
+  display: block;
+  margin: 0 auto;
+  background: #FAFAFA;
+  touch-action: none;
+}
+.snake-controls {
+  display: grid;
+  grid-template-areas: ". up ." "left . right" ". down .";
+  grid-template-columns: repeat(3, 60px);
+  grid-template-rows: repeat(3, 50px);
+  justify-content: center;
+  margin-top: 12px;
+  gap: 4px;
+}
+.snake-controls button {
+  border: none;
+  background: linear-gradient(135deg, #DFE6E9, #B2BEC3);
+  border-radius: 12px;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.1s;
+  color: var(--text);
+}
+.snake-controls button:active { transform: scale(0.9); background: var(--primary-light); }
+.snake-controls .up { grid-area: up; }
+.snake-controls .down { grid-area: down; }
+.snake-controls .left { grid-area: left; }
+.snake-controls .right { grid-area: right; }
+.snake-score {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+.snake-gameover {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  border-radius: var(--radius);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+}
+.snake-gameover.active { display: flex; }
+.snake-gameover h3 { color: white; font-size: 24px; margin-bottom: 8px; }
+.snake-gameover p { color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 4px; }
+.snake-gameover button {
+  margin-top: 16px;
+  background: var(--accent);
+  border: none;
+  padding: 10px 28px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5D4E37;
+  cursor: pointer;
+}
+
+/* ===== SPELLING GAME ===== */
+.spell-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.spell-meaning {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.spell-hint {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+.spell-blanks {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  min-height: 50px;
+}
+.spell-blank {
+  width: 36px;
+  height: 44px;
+  border-bottom: 3px solid #DDD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  transition: all 0.2s;
+}
+.spell-blank.filled { border-bottom-color: var(--success); }
+.spell-blank.wrong { border-bottom-color: var(--danger); color: var(--danger); animation: shake 0.3s; }
+.spell-letters {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.spell-letter {
+  width: 40px;
+  height: 44px;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: lowercase;
+}
+.spell-letter:hover { transform: scale(1.1); }
+.spell-letter:active { transform: scale(0.9); }
+.spell-letter.used { opacity: 0.3; pointer-events: none; }
+.spell-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-light);
+}
+.spell-timer-bar {
+  flex: 1;
+  max-width: 200px;
+  height: 6px;
+  background: #EEE;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.spell-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+  transition: width 1s linear;
+  border-radius: 3px;
+}
+
+/* ===== LISTEN GAME ===== */
+.listen-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.listen-speaker {
+  font-size: 64px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: transform 0.2s;
+  user-select: none;
+}
+.listen-speaker:active { transform: scale(1.2); }
+.listen-speaker.playing { animation: speakerPulse 0.6s ease infinite; }
+@keyframes speakerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.listen-tip { font-size: 13px; color: var(--text-light); margin-bottom: 16px; }
+.listen-input-wrap {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.listen-input {
+  flex: 1;
+  padding: 14px 16px;
+  border: 2px solid #EEE;
+  border-radius: 12px;
+  font-size: 18px;
+  outline: none;
+  text-align: center;
+  font-weight: 600;
+  transition: border-color 0.2s;
+}
+.listen-input:focus { border-color: var(--primary); }
+.listen-input.correct { border-color: var(--success); background: #E8FFF5; }
+.listen-input.wrong { border-color: var(--danger); background: #FFE8E8; }
+.listen-submit {
+  background: linear-gradient(135deg, var(--primary), #FF8E9E);
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.listen-answer {
+  font-size: 16px;
+  margin-top: 8px;
+  min-height: 24px;
+}
+.listen-answer .correct-word { color: var(--success); font-weight: 700; }
+.listen-answer .meaning { color: var(--text-light); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="stat">🐟 <span id="fishCount">0</span></div>
+    <div class="stat">🔥 连续<span id="streakDays">0</span>天</div>
+    <div class="stat">⭐ <span id="masteredCount">0</span>已掌握</div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="cat-area">
+      <div class="cat-scene stage-0 cat-color-orange" id="catScene" onclick="petCat()">
+        <div class="cat-zzz" id="catZzz">💤</div>
+        <div class="cat-shadow"></div>
+        <div class="cat-body-wrap">
+          <div class="cat-body">
+            <div class="cat-head">
+              <div class="cat-crown">👑</div>
+              <div class="cat-ear left"><div class="cat-ear-inner left"></div></div>
+              <div class="cat-ear right"><div class="cat-ear-inner right"></div></div>
+              <div class="cat-eyes"><div class="cat-eye"></div><div class="cat-eye"></div></div>
+              <div class="cat-nose"></div>
+              <div class="cat-mouth"></div>
+              <div class="cat-whisker l1"></div>
+              <div class="cat-whisker l2"></div>
+              <div class="cat-whisker r1"></div>
+              <div class="cat-whisker r2"></div>
+            </div>
+            <div class="cat-paws"><div class="cat-paw"></div><div class="cat-paw"></div></div>
+            <div class="cat-tail"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cat-name" id="catName">流浪小猫</div>
+      <div class="cat-stage" id="catStage">阶段 1/5 · 猫蛋</div>
+      <div class="hearts" id="catHearts">❤️❤️❤️❤️❤️</div>
+      <div class="progress-bar"><div class="progress-fill" id="growthFill" style="width:0%"></div></div>
+      <div class="progress-label">
+        <span>成长进度</span>
+        <span id="growthText">0/10</span>
+      </div>
+      <button class="feed-btn" id="feedBtn" onclick="feedCat()">🐟 喂鱼干 ×5</button>
+    </div>
+
+    <div class="quick-stats">
+      <div class="stat-card"><div class="num" id="todayWords">0</div><div class="label">今日学习</div></div>
+      <div class="stat-card"><div class="num" id="todayCorrect">0</div><div class="label">今日答对</div></div>
+      <div class="stat-card"><div class="num" id="totalWords">0</div><div class="label">累计学词</div></div>
+    </div>
+
+    <div class="actions">
+      <div class="action-btn daily" id="dailyTaskBtn" onclick="startDailyTask()">
+        <div class="icon">📋</div>
+        <div>
+          <div class="title">每日任务 <span class="review-badge" id="reviewBadge" style="display:none">0</span></div>
+          <div class="desc">新词 + 复习，每天进步一点点</div>
+        </div>
+      </div>
+      <div class="action-btn" onclick="showPage('page-units', 'learn')">
+        <div class="icon">📖</div>
+        <div class="title">学单词</div>
+        <div class="desc">按单元学习新词</div>
+      </div>
+      <div class="action-btn" onclick="showPage('page-units', 'quiz')">
+        <div class="icon">✏️</div>
+        <div class="title">做测试</div>
+        <div class="desc">四选一挑战</div>
+      </div>
+    </div>
+
+    <div class="section-title">🎮 小游戏</div>
+    <div class="actions">
+      <div class="action-btn" onclick="openSnake()">
+        <div class="icon">🐍</div>
+        <div class="title">贪吃蛇</div>
+        <div class="desc">吃字母拼单词</div>
+      </div>
+      <div class="action-btn" onclick="openSpell()">
+        <div class="icon">🔤</div>
+        <div class="title">拼写挑战</div>
+        <div class="desc">限时拼出单词</div>
+      </div>
+      <div class="action-btn" style="grid-column:1/-1" onclick="openListen()">
+        <div class="icon">🎧</div>
+        <div class="title">听写模式</div>
+        <div class="desc">听发音写单词，练习听力</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIT SELECT PAGE -->
+  <div class="page" id="page-units">
+    <div class="page-title">
+      <button class="back-btn" onclick="showPage('page-home')">←</button>
+      <span id="unitsTitle">选择单元</span>
+    </div>
+    <div class="unit-list" id="unitList"></div>
+  </div>
+
+  <!-- LEARN PAGE -->
+  <div class="page" id="page-learn">
+    <div class="page-title">
+      <button class="back-btn" onclick="showPage('page-units')">←</button>
+      <span id="learnTitle">学习</span>
+    </div>
+    <div class="learn-progress" id="learnProgress">1 / 10</div>
+    <div class="learn-card" id="learnCard" onclick="flipCard()">
+      <div class="learn-word" id="learnWord"></div>
+      <div class="learn-phonetic" id="learnPhonetic"></div>
+      <div class="learn-meaning" id="learnMeaning" style="display:none"></div>
+      <div class="learn-hint" id="learnHint">👆 点击翻转看释义</div>
+    </div>
+    <div class="learn-actions" id="learnActions" style="display:none">
+      <button class="btn-hard" onclick="learnNext(false)">😵 不会</button>
+      <button class="btn-know" onclick="learnNext(true)">😊 记住了</button>
+    </div>
+  </div>
+
+  <!-- QUIZ PAGE -->
+  <div class="page" id="page-quiz">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="endQuiz()">←</button>
+      <div class="quiz-score">
+        <span id="quizProgress">1/10</span> · 
+        <span class="combo" id="comboText"></span>
+      </div>
+    </div>
+    <div class="quiz-question">
+      <div class="quiz-prompt" id="quizPrompt"></div>
+      <div class="quiz-word" id="quizWord"></div>
+    </div>
+    <div class="quiz-options" id="quizOptions"></div>
+  </div>
+
+  <!-- SNAKE GAME PAGE -->
+  <div class="page" id="page-snake">
+    <div class="page-title">
+      <button class="back-btn" onclick="exitSnake()">←</button>
+      <span>🐍 贪吃蛇拼单词</span>
+    </div>
+    <div class="snake-area" style="position:relative">
+      <div class="snake-score">
+        <span>🐟 <span id="snakeFish">0</span></span>
+        <span>第 <span id="snakeRound">1</span> 词</span>
+        <span>❤️ <span id="snakeLives">3</span></span>
+      </div>
+      <div class="snake-word-hint">吃掉字母拼出：</div>
+      <div class="snake-target" id="snakeTarget">🐱</div>
+      <div class="snake-spelled" id="snakeSpelled"></div>
+      <canvas class="snake-canvas" id="snakeCanvas" width="300" height="300"></canvas>
+      <div class="snake-controls">
+        <button class="up" onclick="snakeDir(0,-1)">⬆️</button>
+        <button class="left" onclick="snakeDir(-1,0)">⬅️</button>
+        <button class="right" onclick="snakeDir(1,0)">➡️</button>
+        <button class="down" onclick="snakeDir(0,1)">⬇️</button>
+      </div>
+      <div class="snake-gameover" id="snakeGameover">
+        <h3 id="snakeOverTitle">游戏结束</h3>
+        <p id="snakeOverDetail"></p>
+        <p id="snakeOverReward"></p>
+        <button onclick="startSnakeGame()">再来一局</button>
+        <button onclick="exitSnake()" style="background:#B2BEC3;margin-top:8px">返回首页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPELLING GAME PAGE -->
+  <div class="page" id="page-spell">
+    <div class="page-title">
+      <button class="back-btn" onclick="exitSpell()">←</button>
+      <span>🔤 拼写挑战</span>
+    </div>
+    <div class="spell-timer">
+      <span>⏱️</span>
+      <div class="spell-timer-bar"><div class="spell-timer-fill" id="spellTimerFill" style="width:100%"></div></div>
+      <span id="spellTimerText">30s</span>
+    </div>
+    <div class="quiz-score" style="text-align:center;margin-bottom:12px">
+      <span id="spellProgress">1/10</span> · 🐟 <span id="spellFish">0</span>
+    </div>
+    <div class="spell-card">
+      <div class="spell-meaning" id="spellMeaning">苹果</div>
+      <div class="spell-hint" id="spellHint">点击字母拼出正确单词</div>
+      <div class="spell-blanks" id="spellBlanks"></div>
+      <div class="spell-letters" id="spellLetters"></div>
+    </div>
+    <div class="learn-actions">
+      <button class="btn-hard" onclick="spellSkip()">⏭️ 跳过</button>
+      <button class="btn-know" id="spellUndoBtn" onclick="spellUndo()">⬅️ 撤回</button>
+    </div>
+  </div>
+
+  <!-- LISTEN GAME PAGE -->
+  <div class="page" id="page-listen">
+    <div class="page-title">
+      <button class="back-btn" onclick="exitListen()">←</button>
+      <span>🎧 听写模式</span>
+    </div>
+    <div class="quiz-score" style="text-align:center;margin-bottom:12px">
+      <span id="listenProgress">1/10</span> · 🐟 <span id="listenFish">0</span>
+    </div>
+    <div class="listen-card">
+      <div class="listen-speaker" id="listenSpeaker" onclick="playListenWord()">🔊</div>
+      <div class="listen-tip">点击喇叭听发音，然后拼写单词</div>
+      <div class="listen-input-wrap">
+        <input class="listen-input" id="listenInput" type="text" placeholder="输入你听到的单词" autocomplete="off" autocapitalize="off">
+        <button class="listen-submit" id="listenSubmitBtn" onclick="checkListen()">确定</button>
+      </div>
+      <div class="listen-answer" id="listenAnswer"></div>
+    </div>
+    <div class="learn-actions" id="listenActions" style="display:none">
+      <button class="btn-next" onclick="nextListen()">下一个 ➡️</button>
+    </div>
+  </div>
+
+  <!-- CATS PAGE -->
+  <div class="page" id="page-cats">
+    <div class="page-title">🐱 猫咪图鉴</div>
+    <div class="cats-grid" id="catsGrid"></div>
+  </div>
+
+  <!-- ACHIEVEMENTS PAGE -->
+  <div class="page" id="page-achievements">
+    <div class="page-title">🏆 成就</div>
+    <div class="achievement-list" id="achievementList"></div>
+  </div>
+
+  <!-- Result Overlay -->
+  <div class="result-overlay" id="resultOverlay">
+    <div class="result-card">
+      <div class="emoji" id="resultEmoji">🎉</div>
+      <h2 id="resultTitle">太棒了！</h2>
+      <p id="resultDetail"></p>
+      <div class="reward" id="resultReward"></div>
+      <p id="resultExtra"></p>
+      <button onclick="closeResult()">好的</button>
+    </div>
+  </div>
+
+  <!-- Level Up Overlay -->
+  <div class="levelup-overlay" id="levelupOverlay">
+    <div class="levelup-card">
+      <div class="new-cat" id="levelupCat">🐱</div>
+      <h2 id="levelupTitle">小猫长大了！</h2>
+      <p id="levelupDesc"></p>
+      <button onclick="closeLevelup()">太棒了！</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showPage('page-home')" data-page="page-home">
+      <span class="nav-icon">🏠</span><span class="nav-label">首页</span>
+    </button>
+    <button class="nav-item" onclick="showPage('page-cats')" data-page="page-cats">
+      <span class="nav-icon">🐱</span><span class="nav-label">图鉴</span>
+    </button>
+    <button class="nav-item" onclick="showPage('page-achievements')" data-page="page-achievements">
+      <span class="nav-icon">🏆</span><span class="nav-label">成就</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ========== WORD DATABASE: 北师大版四年级下册 ==========
+const WORD_DB = [
+  // Unit 7: At the Restaurant
+  { word: "restaurant", meaning: "餐馆", unit: 7, unitName: "At the Restaurant" },
+  { word: "menu", meaning: "菜单", unit: 7, unitName: "At the Restaurant" },
+  { word: "order", meaning: "点餐", unit: 7, unitName: "At the Restaurant" },
+  { word: "noodles", meaning: "面条", unit: 7, unitName: "At the Restaurant" },
+  { word: "rice", meaning: "米饭", unit: 7, unitName: "At the Restaurant" },
+  { word: "soup", meaning: "汤", unit: 7, unitName: "At the Restaurant" },
+  { word: "juice", meaning: "果汁", unit: 7, unitName: "At the Restaurant" },
+  { word: "water", meaning: "水", unit: 7, unitName: "At the Restaurant" },
+  { word: "hungry", meaning: "饿的", unit: 7, unitName: "At the Restaurant" },
+  { word: "thirsty", meaning: "渴的", unit: 7, unitName: "At the Restaurant" },
+  { word: "delicious", meaning: "美味的", unit: 7, unitName: "At the Restaurant" },
+  { word: "waitress", meaning: "女服务员", unit: 7, unitName: "At the Restaurant" },
+  { word: "dumpling", meaning: "饺子", unit: 7, unitName: "At the Restaurant" },
+  { word: "chicken", meaning: "鸡肉", unit: 7, unitName: "At the Restaurant" },
+  { word: "fish", meaning: "鱼", unit: 7, unitName: "At the Restaurant" },
+  { word: "vegetable", meaning: "蔬菜", unit: 7, unitName: "At the Restaurant" },
+
+  // Unit 8: Talent Show
+  { word: "talent", meaning: "才艺", unit: 8, unitName: "Talent Show" },
+  { word: "show", meaning: "表演", unit: 8, unitName: "Talent Show" },
+  { word: "sing", meaning: "唱歌", unit: 8, unitName: "Talent Show" },
+  { word: "dance", meaning: "跳舞", unit: 8, unitName: "Talent Show" },
+  { word: "draw", meaning: "画画", unit: 8, unitName: "Talent Show" },
+  { word: "paint", meaning: "绘画", unit: 8, unitName: "Talent Show" },
+  { word: "piano", meaning: "钢琴", unit: 8, unitName: "Talent Show" },
+  { word: "guitar", meaning: "吉他", unit: 8, unitName: "Talent Show" },
+  { word: "violin", meaning: "小提琴", unit: 8, unitName: "Talent Show" },
+  { word: "wonderful", meaning: "精彩的", unit: 8, unitName: "Talent Show" },
+  { word: "great", meaning: "很棒的", unit: 8, unitName: "Talent Show" },
+  { word: "hobby", meaning: "爱好", unit: 8, unitName: "Talent Show" },
+  { word: "well", meaning: "好地", unit: 8, unitName: "Talent Show" },
+  { word: "swim", meaning: "游泳", unit: 8, unitName: "Talent Show" },
+  { word: "skate", meaning: "滑冰", unit: 8, unitName: "Talent Show" },
+  { word: "ride", meaning: "骑", unit: 8, unitName: "Talent Show" },
+
+  // Unit 9: Hot Soup
+  { word: "hot", meaning: "热的", unit: 9, unitName: "Hot Soup" },
+  { word: "cold", meaning: "冷的", unit: 9, unitName: "Hot Soup" },
+  { word: "warm", meaning: "温暖的", unit: 9, unitName: "Hot Soup" },
+  { word: "cool", meaning: "凉爽的", unit: 9, unitName: "Hot Soup" },
+  { word: "weather", meaning: "天气", unit: 9, unitName: "Hot Soup" },
+  { word: "sunny", meaning: "晴朗的", unit: 9, unitName: "Hot Soup" },
+  { word: "rainy", meaning: "下雨的", unit: 9, unitName: "Hot Soup" },
+  { word: "windy", meaning: "有风的", unit: 9, unitName: "Hot Soup" },
+  { word: "cloudy", meaning: "多云的", unit: 9, unitName: "Hot Soup" },
+  { word: "snowy", meaning: "下雪的", unit: 9, unitName: "Hot Soup" },
+  { word: "spring", meaning: "春天", unit: 9, unitName: "Hot Soup" },
+  { word: "summer", meaning: "夏天", unit: 9, unitName: "Hot Soup" },
+  { word: "autumn", meaning: "秋天", unit: 9, unitName: "Hot Soup" },
+  { word: "winter", meaning: "冬天", unit: 9, unitName: "Hot Soup" },
+  { word: "season", meaning: "季节", unit: 9, unitName: "Hot Soup" },
+  { word: "temperature", meaning: "温度", unit: 9, unitName: "Hot Soup" },
+
+  // Unit 10: Mocky's Store
+  { word: "store", meaning: "商店", unit: 10, unitName: "Mocky's Store" },
+  { word: "buy", meaning: "买", unit: 10, unitName: "Mocky's Store" },
+  { word: "sell", meaning: "卖", unit: 10, unitName: "Mocky's Store" },
+  { word: "price", meaning: "价格", unit: 10, unitName: "Mocky's Store" },
+  { word: "cheap", meaning: "便宜的", unit: 10, unitName: "Mocky's Store" },
+  { word: "expensive", meaning: "贵的", unit: 10, unitName: "Mocky's Store" },
+  { word: "money", meaning: "钱", unit: 10, unitName: "Mocky's Store" },
+  { word: "toy", meaning: "玩具", unit: 10, unitName: "Mocky's Store" },
+  { word: "doll", meaning: "娃娃", unit: 10, unitName: "Mocky's Store" },
+  { word: "ball", meaning: "球", unit: 10, unitName: "Mocky's Store" },
+  { word: "kite", meaning: "风筝", unit: 10, unitName: "Mocky's Store" },
+  { word: "teddy bear", meaning: "泰迪熊", unit: 10, unitName: "Mocky's Store" },
+  { word: "robot", meaning: "机器人", unit: 10, unitName: "Mocky's Store" },
+  { word: "gift", meaning: "礼物", unit: 10, unitName: "Mocky's Store" },
+  { word: "beautiful", meaning: "漂亮的", unit: 10, unitName: "Mocky's Store" },
+  { word: "how much", meaning: "多少钱", unit: 10, unitName: "Mocky's Store" },
+
+  // Unit 11: Uncle Jack's Farm
+  { word: "farm", meaning: "农场", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "farmer", meaning: "农民", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "cow", meaning: "奶牛", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "sheep", meaning: "绵羊", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "horse", meaning: "马", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "pig", meaning: "猪", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "duck", meaning: "鸭子", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "hen", meaning: "母鸡", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "goat", meaning: "山羊", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "field", meaning: "田野", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "grow", meaning: "种植", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "feed", meaning: "喂养", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "milk", meaning: "牛奶", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "egg", meaning: "鸡蛋", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "fruit", meaning: "水果", unit: 11, unitName: "Uncle Jack's Farm" },
+  { word: "apple", meaning: "苹果", unit: 11, unitName: "Uncle Jack's Farm" },
+
+  // Unit 12: Review & Extension
+  { word: "morning", meaning: "早上", unit: 12, unitName: "Review" },
+  { word: "afternoon", meaning: "下午", unit: 12, unitName: "Review" },
+  { word: "evening", meaning: "傍晚", unit: 12, unitName: "Review" },
+  { word: "night", meaning: "夜晚", unit: 12, unitName: "Review" },
+  { word: "today", meaning: "今天", unit: 12, unitName: "Review" },
+  { word: "tomorrow", meaning: "明天", unit: 12, unitName: "Review" },
+  { word: "yesterday", meaning: "昨天", unit: 12, unitName: "Review" },
+  { word: "week", meaning: "星期", unit: 12, unitName: "Review" },
+  { word: "month", meaning: "月份", unit: 12, unitName: "Review" },
+  { word: "year", meaning: "年", unit: 12, unitName: "Review" },
+  { word: "birthday", meaning: "生日", unit: 12, unitName: "Review" },
+  { word: "party", meaning: "聚会", unit: 12, unitName: "Review" },
+  { word: "happy", meaning: "快乐的", unit: 12, unitName: "Review" },
+  { word: "friend", meaning: "朋友", unit: 12, unitName: "Review" },
+  { word: "family", meaning: "家庭", unit: 12, unitName: "Review" },
+  { word: "love", meaning: "爱", unit: 12, unitName: "Review" },
+];
+
+// ========== CAT DEFINITIONS ==========
+const CAT_STAGES = [
+  { emoji: "🐾", name: "流浪小猫", threshold: 0 },
+  { emoji: "🐱", name: "小奶猫", threshold: 10 },
+  { emoji: "😺", name: "小猫咪", threshold: 25 },
+  { emoji: "😸", name: "大猫咪", threshold: 50 },
+  { emoji: "👑", name: "猫国王", threshold: 100 },
+];
+
+const CAT_COLLECTION = [
+  { id: "orange", name: "橘猫", emoji: "🐱", unlockText: "默认猫咪", cost: 0 },
+  { id: "black", name: "黑猫", emoji: "🐈‍⬛", unlockText: "累计背词50个", cost: 50 },
+  { id: "white", name: "白猫", emoji: "🐈", unlockText: "连续打卡7天", cost: 7 },
+  { id: "lion", name: "小狮子", emoji: "🦁", unlockText: "养满一只猫国王", cost: 1 },
+  { id: "tiger", name: "小老虎", emoji: "🐯", unlockText: "测试全对10次", cost: 10 },
+  { id: "leopard", name: "小豹子", emoji: "🐆", unlockText: "掌握全部单词", cost: 96 },
+];
+
+const ACHIEVEMENTS = [
+  { id: "first_word", name: "初识英语", desc: "学习第一个单词", icon: "📝", check: s => s.totalLearned >= 1 },
+  { id: "ten_words", name: "十词小将", desc: "累计学习10个单词", icon: "📚", check: s => s.totalLearned >= 10 },
+  { id: "fifty_words", name: "单词达人", desc: "累计学习50个单词", icon: "🎓", check: s => s.totalLearned >= 50 },
+  { id: "all_words", name: "词汇大师", desc: "学习全部单词", icon: "👨‍🎓", check: s => s.totalLearned >= 96 },
+  { id: "first_perfect", name: "满分宝贝", desc: "测试中全部答对", icon: "💯", check: s => s.perfectQuizzes >= 1 },
+  { id: "ten_perfect", name: "常胜将军", desc: "10次测试全对", icon: "🏅", check: s => s.perfectQuizzes >= 10 },
+  { id: "combo5", name: "连击新星", desc: "连续答对5题", icon: "⚡", check: s => s.maxCombo >= 5 },
+  { id: "combo10", name: "连击高手", desc: "连续答对10题", icon: "🔥", check: s => s.maxCombo >= 10 },
+  { id: "combo20", name: "连击之王", desc: "连续答对20题", icon: "💥", check: s => s.maxCombo >= 20 },
+  { id: "streak3", name: "三日坚持", desc: "连续学习3天", icon: "📅", check: s => s.streak >= 3 },
+  { id: "streak7", name: "一周达人", desc: "连续学习7天", icon: "🗓️", check: s => s.streak >= 7 },
+  { id: "streak30", name: "月度之星", desc: "连续学习30天", icon: "🌟", check: s => s.streak >= 30 },
+  { id: "first_cat", name: "初次成长", desc: "小猫第一次升级", icon: "🐾", check: s => s.catStage >= 1 },
+  { id: "cat_king", name: "猫国加冕", desc: "培养出猫国王", icon: "👑", check: s => s.catStage >= 4 },
+  { id: "feed50", name: "喂猫达人", desc: "累计喂猫50次", icon: "🐟", check: s => s.totalFeeds >= 50 },
+  { id: "two_cats", name: "双猫家庭", desc: "解锁2只猫", icon: "🐱", check: s => s.unlockedCats >= 2 },
+  { id: "all_cats", name: "全猫收集", desc: "解锁全部猫咪", icon: "🏆", check: s => s.unlockedCats >= 6 },
+];
+
+// ========== EBBINGHAUS REVIEW INTERVALS (in days) ==========
+const REVIEW_INTERVALS = [1, 2, 4, 7, 15, 30];
+
+// ========== STATE ==========
+let state = {
+  fish: 0,
+  streak: 0,
+  lastStudyDate: null,
+  totalFeeds: 0,
+  totalLearned: 0,
+  todayLearned: 0,
+  todayCorrect: 0,
+  todayDate: null,
+  perfectQuizzes: 0,
+  maxCombo: 0,
+  catStage: 0,
+  growthPoints: 0,
+  hungerHearts: 5,
+  lastFeedTime: null,
+  activeCat: "orange",
+  unlockedCats: ["orange"],
+  catsMaxStage: {},
+  achievements: [],
+  wordProgress: {},
+  // wordProgress[word] = { learned: bool, stars: 0-5, lastReview: dateStr, reviewIndex: 0 }
+};
+
+let currentMode = null; // 'learn' or 'quiz'
+let currentUnit = null;
+let learnQueue = [];
+let learnIndex = 0;
+let learnFlipped = false;
+let quizQueue = [];
+let quizIndex = 0;
+let quizCombo = 0;
+let quizCorrectCount = 0;
+let quizAnswered = false;
+let isDailyTask = false;
+
+// ========== INIT ==========
+function init() {
+  loadState();
+  checkNewDay();
+  updateHunger();
+  renderHome();
+  renderCats();
+  renderAchievements();
+  updateTopBar();
+  updateReviewBadge();
+}
+
+function loadState() {
+  const saved = localStorage.getItem('catwords_state');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    state = { ...state, ...parsed };
+  }
+}
+
+function saveState() {
+  localStorage.setItem('catwords_state', JSON.stringify(state));
+}
+
+function checkNewDay() {
+  const today = new Date().toDateString();
+  if (state.todayDate !== today) {
+    // Check streak
+    if (state.lastStudyDate) {
+      const last = new Date(state.lastStudyDate);
+      const now = new Date();
+      const diffDays = Math.floor((now - last) / 86400000);
+      if (diffDays === 1) {
+        state.streak++;
+      } else if (diffDays > 1) {
+        state.streak = 0;
+      }
+    }
+    state.todayLearned = 0;
+    state.todayCorrect = 0;
+    state.todayDate = today;
+    saveState();
+  }
+}
+
+// ========== HUNGER SYSTEM ==========
+function updateHunger() {
+  if (state.lastFeedTime) {
+    const hours = (Date.now() - state.lastFeedTime) / 3600000;
+    const lost = Math.floor(hours / 8); // lose 1 heart every 8 hours
+    state.hungerHearts = Math.max(0, 5 - lost);
+  }
+}
+
+// ========== NAVIGATION ==========
+function showPage(pageId, mode) {
+  if (mode) currentMode = mode;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === pageId);
+  });
+
+  if (pageId === 'page-home') {
+    renderHome();
+    updateReviewBadge();
+  }
+  if (pageId === 'page-units') {
+    renderUnits();
+  }
+  if (pageId === 'page-cats') renderCats();
+  if (pageId === 'page-achievements') renderAchievements();
+}
+
+// ========== RENDER HOME ==========
+function renderHome() {
+  updateHunger();
+  const stage = getCurrentStage();
+  const catDef = CAT_COLLECTION.find(c => c.id === state.activeCat);
+  const stageEmoji = stage.emoji;
+
+  // Update animated cat
+  const scene = document.getElementById('catScene');
+  scene.className = 'cat-scene';
+  scene.classList.add(`stage-${state.catStage}`);
+  const colorMap = { orange: 'orange', black: 'black', white: 'white', lion: 'lion', tiger: 'tiger', leopard: 'leopard' };
+  scene.classList.add(`cat-color-${colorMap[state.activeCat] || 'orange'}`);
+  if (state.hungerHearts <= 1) scene.classList.add('hungry');
+
+  document.getElementById('catName').textContent = catDef ? catDef.name : '小猫';
+  document.getElementById('catStage').textContent = `阶段 ${state.catStage + 1}/5 · ${stage.name}`;
+
+  let hearts = '';
+  for (let i = 0; i < 5; i++) hearts += i < state.hungerHearts ? '❤️' : '🤍';
+  document.getElementById('catHearts').textContent = hearts;
+
+  const nextThreshold = state.catStage < 4 ? CAT_STAGES[state.catStage + 1].threshold : CAT_STAGES[4].threshold;
+  const currentThreshold = CAT_STAGES[state.catStage].threshold;
+  const progress = state.catStage >= 4 ? 100 : ((state.growthPoints - currentThreshold) / (nextThreshold - currentThreshold) * 100);
+  document.getElementById('growthFill').style.width = Math.min(100, Math.max(0, progress)) + '%';
+  document.getElementById('growthText').textContent = state.catStage >= 4 ? '已满级 ✨' : `${state.growthPoints}/${nextThreshold}`;
+
+  document.getElementById('feedBtn').disabled = state.fish < 5;
+  document.getElementById('todayWords').textContent = state.todayLearned;
+  document.getElementById('todayCorrect').textContent = state.todayCorrect;
+  document.getElementById('totalWords').textContent = state.totalLearned;
+
+  updateTopBar();
+}
+
+function getCurrentStage() {
+  return CAT_STAGES[Math.min(state.catStage, 4)];
+}
+
+function updateTopBar() {
+  document.getElementById('fishCount').textContent = state.fish;
+  document.getElementById('streakDays').textContent = state.streak;
+  const mastered = Object.values(state.wordProgress).filter(w => w.stars >= 5).length;
+  document.getElementById('masteredCount').textContent = mastered;
+}
+
+// ========== FEED CAT ==========
+function feedCat() {
+  if (state.fish < 5) return;
+  state.fish -= 5;
+  state.totalFeeds++;
+  state.hungerHearts = Math.min(5, state.hungerHearts + 1);
+  state.lastFeedTime = Date.now();
+  state.growthPoints++;
+
+  showFishAnimation();
+
+  // Happy eating animation
+  const scene = document.getElementById('catScene');
+  scene.classList.add('happy');
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => spawnCatParticle('🐟'), i * 300);
+  }
+  setTimeout(() => {
+    scene.classList.remove('happy');
+    renderHome();
+  }, 1500);
+
+  // Check level up
+  const oldStage = state.catStage;
+  for (let i = CAT_STAGES.length - 1; i >= 0; i--) {
+    if (state.growthPoints >= CAT_STAGES[i].threshold) {
+      state.catStage = i;
+      break;
+    }
+  }
+
+  if (state.catStage > oldStage) {
+    showLevelUp(state.catStage);
+    if (state.catStage >= 4) {
+      state.catsMaxStage[state.activeCat] = 4;
+      checkCatUnlock('lion');
+    }
+  }
+
+  saveState();
+  checkAchievements();
+  renderHome();
+}
+
+function showFishAnimation() {
+  const el = document.createElement('div');
+  el.className = 'fish-float';
+  el.textContent = '🐟 -5';
+  el.style.left = '50%';
+  el.style.top = '200px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+function petCat() {
+  const scene = document.getElementById('catScene');
+  scene.classList.add('happy', 'purring');
+  showToast('喵~ 呼噜噜~');
+
+  // Spawn floating hearts
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => spawnCatParticle('❤️'), i * 200);
+  }
+
+  setTimeout(() => {
+    scene.classList.remove('happy', 'purring');
+    renderHome();
+  }, 2000);
+}
+
+function spawnCatParticle(emoji) {
+  const scene = document.getElementById('catScene');
+  const el = document.createElement('div');
+  el.className = 'cat-particle';
+  el.textContent = emoji;
+  el.style.left = (60 + Math.random() * 60) + 'px';
+  el.style.top = (20 + Math.random() * 40) + 'px';
+  el.style.setProperty('--px', (Math.random() * 40 - 20) + 'px');
+  scene.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+// ========== UNITS ==========
+function renderUnits() {
+  const title = currentMode === 'learn' ? '📖 选择学习单元' : '✏️ 选择测试单元';
+  document.getElementById('unitsTitle').textContent = title;
+
+  const units = [...new Set(WORD_DB.map(w => w.unit))];
+  const list = document.getElementById('unitList');
+  list.innerHTML = '';
+
+  units.forEach(u => {
+    const words = WORD_DB.filter(w => w.unit === u);
+    const unitName = words[0].unitName;
+    const learned = words.filter(w => state.wordProgress[w.word]?.learned).length;
+    const avgStars = words.reduce((sum, w) => sum + (state.wordProgress[w.word]?.stars || 0), 0) / words.length;
+
+    const card = document.createElement('div');
+    card.className = 'unit-card';
+    card.onclick = () => startUnit(u);
+
+    let starsDisplay = '';
+    for (let i = 1; i <= 5; i++) starsDisplay += i <= Math.round(avgStars) ? '⭐' : '☆';
+
+    card.innerHTML = `
+      <div class="info">
+        <div class="name">Unit ${u}: ${unitName}</div>
+        <div class="meta">${words.length} 词 · 已学 ${learned}/${words.length}</div>
+      </div>
+      <div class="stars">${starsDisplay}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function startUnit(unit) {
+  currentUnit = unit;
+  const words = WORD_DB.filter(w => w.unit === unit);
+  if (currentMode === 'learn') startLearn(words);
+  else startQuiz(words);
+}
+
+// ========== LEARN MODE ==========
+function startLearn(words) {
+  isDailyTask = false;
+  learnQueue = shuffle([...words]);
+  learnIndex = 0;
+  learnFlipped = false;
+  showPage('page-learn');
+  const unitWord = learnQueue[0];
+  document.getElementById('learnTitle').textContent = currentUnit ? `Unit ${currentUnit} 学习` : '每日学习';
+  renderLearnCard();
+}
+
+function renderLearnCard() {
+  if (learnIndex >= learnQueue.length) {
+    finishLearn();
+    return;
+  }
+  const w = learnQueue[learnIndex];
+  learnFlipped = false;
+  document.getElementById('learnProgress').textContent = `${learnIndex + 1} / ${learnQueue.length}`;
+  document.getElementById('learnWord').textContent = w.word;
+  document.getElementById('learnPhonetic').textContent = '';
+  document.getElementById('learnMeaning').style.display = 'none';
+  document.getElementById('learnMeaning').textContent = w.meaning;
+  document.getElementById('learnHint').textContent = '👆 点击翻转看释义';
+  document.getElementById('learnHint').style.display = '';
+  document.getElementById('learnActions').style.display = 'none';
+  document.getElementById('learnCard').classList.remove('flipped');
+}
+
+function flipCard() {
+  if (learnFlipped) return;
+  learnFlipped = true;
+  document.getElementById('learnMeaning').style.display = '';
+  document.getElementById('learnHint').style.display = 'none';
+  document.getElementById('learnActions').style.display = 'flex';
+  document.getElementById('learnCard').classList.add('flipped');
+}
+
+function learnNext(known) {
+  const w = learnQueue[learnIndex];
+  if (!state.wordProgress[w.word]) {
+    state.wordProgress[w.word] = { learned: false, stars: 0, lastReview: null, reviewIndex: 0 };
+  }
+  const wp = state.wordProgress[w.word];
+
+  if (!wp.learned) {
+    wp.learned = true;
+    state.totalLearned++;
+    state.todayLearned++;
+    state.lastStudyDate = new Date().toDateString();
+  }
+
+  if (known) {
+    wp.stars = Math.min(5, wp.stars + 1);
+    state.fish++;
+    showToast('🐟 +1 鱼干');
+  } else {
+    wp.stars = Math.max(0, wp.stars - 1);
+    wp.reviewIndex = 0; // reset review schedule
+  }
+
+  wp.lastReview = new Date().toDateString();
+  saveState();
+  updateTopBar();
+
+  learnIndex++;
+  renderLearnCard();
+}
+
+function finishLearn() {
+  checkAchievements();
+  showResult(
+    '📖',
+    '学习完成！',
+    `本轮学习了 ${learnQueue.length} 个单词`,
+    `获得 🐟 ${learnQueue.length} 鱼干`,
+    isDailyTask ? '继续完成每日测试吧！' : ''
+  );
+
+  if (isDailyTask) {
+    document.getElementById('resultOverlay').querySelector('button').onclick = () => {
+      closeResult();
+      startQuiz(dailyReviewWords.concat(dailyNewWords));
+      isDailyTask = true;
+    };
+  }
+}
+
+// ========== QUIZ MODE ==========
+function startQuiz(words) {
+  if (words.length < 4) {
+    showToast('单词太少，至少需要4个词才能测试');
+    return;
+  }
+  quizQueue = shuffle([...words]).slice(0, Math.min(15, words.length));
+  quizIndex = 0;
+  quizCombo = 0;
+  quizCorrectCount = 0;
+  quizAnswered = false;
+  showPage('page-quiz');
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  if (quizIndex >= quizQueue.length) {
+    finishQuiz();
+    return;
+  }
+  quizAnswered = false;
+  const w = quizQueue[quizIndex];
+  document.getElementById('quizProgress').textContent = `${quizIndex + 1}/${quizQueue.length}`;
+  document.getElementById('comboText').textContent = quizCombo > 1 ? `🔥 ${quizCombo}连击` : '';
+
+  // Randomly choose question type: en->cn or cn->en
+  const type = Math.random() > 0.5 ? 'en2cn' : 'cn2en';
+  const optionsEl = document.getElementById('quizOptions');
+  optionsEl.innerHTML = '';
+
+  if (type === 'en2cn') {
+    document.getElementById('quizPrompt').textContent = '这个单词是什么意思？';
+    document.getElementById('quizWord').textContent = w.word;
+    document.getElementById('quizWord').className = 'quiz-word';
+
+    const wrongOptions = WORD_DB
+      .filter(x => x.meaning !== w.meaning)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3)
+      .map(x => x.meaning);
+    const options = shuffle([w.meaning, ...wrongOptions]);
+
+    options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'quiz-option';
+      btn.textContent = opt;
+      btn.onclick = () => answerQuiz(btn, opt === w.meaning, w);
+      optionsEl.appendChild(btn);
+    });
+  } else {
+    document.getElementById('quizPrompt').textContent = '哪个是正确的英文？';
+    document.getElementById('quizWord').textContent = w.meaning;
+    document.getElementById('quizWord').className = 'quiz-meaning-q';
+
+    const wrongOptions = WORD_DB
+      .filter(x => x.word !== w.word)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3)
+      .map(x => x.word);
+    const options = shuffle([w.word, ...wrongOptions]);
+
+    options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'quiz-option';
+      btn.textContent = opt;
+      btn.onclick = () => answerQuiz(btn, opt === w.word, w);
+      optionsEl.appendChild(btn);
+    });
+  }
+}
+
+function answerQuiz(btn, correct, word) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+
+  document.querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+
+  if (!state.wordProgress[word.word]) {
+    state.wordProgress[word.word] = { learned: true, stars: 0, lastReview: null, reviewIndex: 0 };
+  }
+  const wp = state.wordProgress[word.word];
+
+  if (correct) {
+    btn.classList.add('correct');
+    quizCombo++;
+    quizCorrectCount++;
+    state.todayCorrect++;
+    state.maxCombo = Math.max(state.maxCombo, quizCombo);
+    wp.stars = Math.min(5, wp.stars + 1);
+    wp.reviewIndex = Math.min(REVIEW_INTERVALS.length - 1, wp.reviewIndex + 1);
+
+    let bonus = 1;
+    if (quizCombo >= 5 && quizCombo % 5 === 0) {
+      bonus += 3;
+      showToast(`🔥 ${quizCombo}连击！额外 +3 鱼干`);
+    } else {
+      showToast('✅ 正确！+1 🐟');
+    }
+    state.fish += bonus;
+  } else {
+    btn.classList.add('wrong');
+    quizCombo = 0;
+    wp.stars = Math.max(0, wp.stars - 1);
+    wp.reviewIndex = 0;
+
+    // Highlight correct answer
+    document.querySelectorAll('.quiz-option').forEach(o => {
+      if (!o.classList.contains('wrong')) {
+        const isCorrectOption = (o.textContent === word.meaning || o.textContent === word.word);
+        if (isCorrectOption) o.classList.add('correct');
+      }
+    });
+    showToast('❌ 再想想~');
+  }
+
+  wp.lastReview = new Date().toDateString();
+  state.lastStudyDate = new Date().toDateString();
+  saveState();
+  updateTopBar();
+
+  setTimeout(() => {
+    quizIndex++;
+    renderQuizQuestion();
+  }, 1200);
+}
+
+function finishQuiz() {
+  const total = quizQueue.length;
+  const pct = Math.round(quizCorrectCount / total * 100);
+  const isPerfect = quizCorrectCount === total;
+
+  if (isPerfect) state.perfectQuizzes = (state.perfectQuizzes || 0) + 1;
+
+  const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 50 ? '😊' : '💪';
+  const title = pct >= 90 ? '太厉害了！' : pct >= 70 ? '做得不错！' : pct >= 50 ? '继续加油！' : '再练练吧！';
+  const fishEarned = quizCorrectCount;
+  const bonusFish = Math.floor(quizCorrectCount / 5) * 3;
+
+  saveState();
+  checkAchievements();
+
+  showResult(
+    emoji,
+    title,
+    `答对 ${quizCorrectCount}/${total} 题 (${pct}%)`,
+    `获得 🐟 ${fishEarned + bonusFish} 鱼干`,
+    isPerfect ? '🌟 全对！太棒了！' : ''
+  );
+}
+
+function endQuiz() {
+  if (quizIndex > 0) {
+    finishQuiz();
+  } else {
+    showPage('page-home');
+  }
+}
+
+// ========== DAILY TASK ==========
+let dailyNewWords = [];
+let dailyReviewWords = [];
+
+function startDailyTask() {
+  isDailyTask = true;
+  const today = new Date();
+  const todayStr = today.toDateString();
+
+  // Find words needing review (Ebbinghaus)
+  dailyReviewWords = [];
+  Object.keys(state.wordProgress).forEach(word => {
+    const wp = state.wordProgress[word];
+    if (!wp.learned || wp.stars >= 5) return;
+    if (!wp.lastReview) { dailyReviewWords.push(word); return; }
+
+    const lastDate = new Date(wp.lastReview);
+    const daysDiff = Math.floor((today - lastDate) / 86400000);
+    const interval = REVIEW_INTERVALS[wp.reviewIndex] || 30;
+    if (daysDiff >= interval) {
+      dailyReviewWords.push(word);
+    }
+  });
+
+  // Find new words to learn
+  const unlearnedWords = WORD_DB.filter(w => !state.wordProgress[w.word]?.learned);
+  dailyNewWords = unlearnedWords.slice(0, 5);
+
+  dailyReviewWords = dailyReviewWords.slice(0, 10).map(word => WORD_DB.find(w => w.word === word)).filter(Boolean);
+
+  if (dailyNewWords.length === 0 && dailyReviewWords.length === 0) {
+    showToast('🎉 今天没有需要学习的单词了！');
+    return;
+  }
+
+  if (dailyNewWords.length > 0) {
+    currentUnit = null;
+    document.getElementById('learnTitle').textContent = '每日新词';
+    startLearn(dailyNewWords);
+    isDailyTask = true;
+  } else if (dailyReviewWords.length > 0) {
+    startQuiz(dailyReviewWords);
+    isDailyTask = true;
+  }
+}
+
+function updateReviewBadge() {
+  const today = new Date();
+  let count = 0;
+  Object.keys(state.wordProgress).forEach(word => {
+    const wp = state.wordProgress[word];
+    if (!wp.learned || wp.stars >= 5) return;
+    if (!wp.lastReview) { count++; return; }
+    const daysDiff = Math.floor((today - new Date(wp.lastReview)) / 86400000);
+    const interval = REVIEW_INTERVALS[wp.reviewIndex] || 30;
+    if (daysDiff >= interval) count++;
+  });
+
+  const badge = document.getElementById('reviewBadge');
+  const unlearnedCount = WORD_DB.filter(w => !state.wordProgress[w.word]?.learned).length;
+  const total = count + Math.min(5, unlearnedCount);
+  if (total > 0) {
+    badge.style.display = '';
+    badge.textContent = total;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ========== CATS COLLECTION ==========
+function renderCats() {
+  const grid = document.getElementById('catsGrid');
+  grid.innerHTML = '';
+  CAT_COLLECTION.forEach(cat => {
+    const unlocked = state.unlockedCats.includes(cat.id);
+    const isActive = state.activeCat === cat.id;
+    const card = document.createElement('div');
+    card.className = `cat-card ${unlocked ? '' : 'locked'} ${isActive ? 'active-cat' : ''}`;
+    card.innerHTML = `
+      <div class="cat-icon">${unlocked ? cat.emoji : '❓'}</div>
+      <div class="cat-card-name">${unlocked ? cat.name : '???'}</div>
+      <div class="cat-card-status">${unlocked ? (isActive ? '当前使用' : '点击切换') : cat.unlockText}</div>
+    `;
+    if (unlocked) {
+      card.onclick = () => {
+        state.activeCat = cat.id;
+        saveState();
+        renderCats();
+        renderHome();
+        showToast(`切换到 ${cat.name}！`);
+      };
+    }
+    grid.appendChild(card);
+  });
+}
+
+function checkCatUnlock(catId) {
+  if (state.unlockedCats.includes(catId)) return;
+
+  let shouldUnlock = false;
+  switch (catId) {
+    case 'black': shouldUnlock = state.totalLearned >= 50; break;
+    case 'white': shouldUnlock = state.streak >= 7; break;
+    case 'lion': shouldUnlock = state.catStage >= 4; break;
+    case 'tiger': shouldUnlock = (state.perfectQuizzes || 0) >= 10; break;
+    case 'leopard':
+      shouldUnlock = Object.values(state.wordProgress).filter(w => w.stars >= 5).length >= WORD_DB.length;
+      break;
+  }
+
+  if (shouldUnlock) {
+    state.unlockedCats.push(catId);
+    saveState();
+    const cat = CAT_COLLECTION.find(c => c.id === catId);
+    showToast(`🎉 解锁新猫咪：${cat.name} ${cat.emoji}`);
+  }
+}
+
+// ========== ACHIEVEMENTS ==========
+function renderAchievements() {
+  const list = document.getElementById('achievementList');
+  list.innerHTML = '';
+
+  const stats = {
+    totalLearned: state.totalLearned,
+    perfectQuizzes: state.perfectQuizzes || 0,
+    maxCombo: state.maxCombo || 0,
+    streak: state.streak,
+    catStage: state.catStage,
+    totalFeeds: state.totalFeeds,
+    unlockedCats: state.unlockedCats.length,
+  };
+
+  ACHIEVEMENTS.forEach(ach => {
+    const unlocked = ach.check(stats);
+    const item = document.createElement('div');
+    item.className = `achievement-item ${unlocked ? '' : 'locked'}`;
+    item.innerHTML = `
+      <div class="badge">${unlocked ? ach.icon : '🔒'}</div>
+      <div class="ach-info">
+        <div class="ach-name">${ach.name}</div>
+        <div class="ach-desc">${ach.desc}</div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function checkAchievements() {
+  const stats = {
+    totalLearned: state.totalLearned,
+    perfectQuizzes: state.perfectQuizzes || 0,
+    maxCombo: state.maxCombo || 0,
+    streak: state.streak,
+    catStage: state.catStage,
+    totalFeeds: state.totalFeeds,
+    unlockedCats: state.unlockedCats.length,
+  };
+
+  ACHIEVEMENTS.forEach(ach => {
+    if (!state.achievements.includes(ach.id) && ach.check(stats)) {
+      state.achievements.push(ach.id);
+      showToast(`🏆 达成成就：${ach.name}`);
+    }
+  });
+
+  // Check cat unlocks
+  ['black', 'white', 'lion', 'tiger', 'leopard'].forEach(checkCatUnlock);
+  saveState();
+}
+
+// ========== OVERLAYS ==========
+function showResult(emoji, title, detail, reward, extra) {
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultDetail').textContent = detail;
+  document.getElementById('resultReward').textContent = reward;
+  document.getElementById('resultExtra').textContent = extra || '';
+  document.getElementById('resultOverlay').classList.add('active');
+  document.getElementById('resultOverlay').querySelector('button').onclick = closeResult;
+}
+
+function closeResult() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  showPage('page-home');
+}
+
+function showLevelUp(stage) {
+  const s = CAT_STAGES[stage];
+  document.getElementById('levelupCat').textContent = s.emoji;
+  document.getElementById('levelupTitle').textContent = `进化为 ${s.name}！`;
+  document.getElementById('levelupDesc').textContent = stage >= 4 ? '🎊 已达最高阶段！' : `继续喂养解锁下一阶段`;
+  document.getElementById('levelupOverlay').classList.add('active');
+  spawnConfetti();
+}
+
+function closeLevelup() {
+  document.getElementById('levelupOverlay').classList.remove('active');
+}
+
+function spawnConfetti() {
+  const colors = ['#FF6B9D', '#4ECDC4', '#FFE66D', '#FF7675', '#A29BFE', '#00B894'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 1 + 's';
+    el.style.animationDuration = (1.5 + Math.random()) + 's';
+    el.style.width = (6 + Math.random() * 8) + 'px';
+    el.style.height = (6 + Math.random() * 8) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+}
+
+// ========== TOAST ==========
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ========== UTILS ==========
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ========== SNAKE GAME ==========
+let snakeState = null;
+let snakeInterval = null;
+let snakeWords = [];
+let snakeWordIdx = 0;
+let snakeLetterIdx = 0;
+let snakeFishEarned = 0;
+let snakeLives = 3;
+const SNAKE_GRID = 15;
+const SNAKE_CELL = 20;
+
+function openSnake() {
+  showPage('page-snake');
+  startSnakeGame();
+}
+
+function exitSnake() {
+  clearInterval(snakeInterval);
+  snakeInterval = null;
+  if (snakeFishEarned > 0) {
+    state.fish += snakeFishEarned;
+    saveState();
+    updateTopBar();
+  }
+  showPage('page-home');
+}
+
+function startSnakeGame() {
+  document.getElementById('snakeGameover').classList.remove('active');
+  snakeWords = shuffle([...WORD_DB]).slice(0, 10);
+  snakeWordIdx = 0;
+  snakeLetterIdx = 0;
+  snakeFishEarned = 0;
+  snakeLives = 3;
+  document.getElementById('snakeFish').textContent = '0';
+  document.getElementById('snakeLives').textContent = '3';
+  initSnakeRound();
+}
+
+function initSnakeRound() {
+  const w = snakeWords[snakeWordIdx];
+  document.getElementById('snakeTarget').textContent = w.meaning;
+  document.getElementById('snakeRound').textContent = snakeWordIdx + 1;
+  document.getElementById('snakeSpelled').textContent = '';
+  snakeLetterIdx = 0;
+
+  const mid = Math.floor(SNAKE_GRID / 2);
+  snakeState = {
+    snake: [{x: mid, y: mid}, {x: mid-1, y: mid}, {x: mid-2, y: mid}],
+    dir: {x: 1, y: 0},
+    nextDir: {x: 1, y: 0},
+    letters: [],
+  };
+
+  placeSnakeLetters();
+
+  clearInterval(snakeInterval);
+  snakeInterval = setInterval(snakeTick, 180);
+  renderSnake();
+}
+
+function placeSnakeLetters() {
+  const w = snakeWords[snakeWordIdx];
+  const word = w.word.replace(/\s/g, '');
+  snakeState.letters = [];
+  const occupied = new Set(snakeState.snake.map(s => s.x + ',' + s.y));
+
+  for (let i = 0; i < word.length; i++) {
+    let pos;
+    let tries = 0;
+    do {
+      pos = { x: Math.floor(Math.random() * SNAKE_GRID), y: Math.floor(Math.random() * SNAKE_GRID) };
+      tries++;
+    } while ((occupied.has(pos.x + ',' + pos.y) || snakeState.letters.some(l => l.x === pos.x && l.y === pos.y)) && tries < 200);
+
+    snakeState.letters.push({ x: pos.x, y: pos.y, char: word[i], index: i, correct: i === snakeLetterIdx + snakeState.letters.filter(l => l.eaten).length });
+    occupied.add(pos.x + ',' + pos.y);
+  }
+}
+
+function snakeDir(dx, dy) {
+  if (!snakeState) return;
+  if (snakeState.dir.x === -dx && snakeState.dir.y === -dy) return;
+  snakeState.nextDir = {x: dx, y: dy};
+}
+
+function snakeTick() {
+  if (!snakeState) return;
+  snakeState.dir = {...snakeState.nextDir};
+  const head = snakeState.snake[0];
+  const newHead = {
+    x: (head.x + snakeState.dir.x + SNAKE_GRID) % SNAKE_GRID,
+    y: (head.y + snakeState.dir.y + SNAKE_GRID) % SNAKE_GRID,
+  };
+
+  // Self collision
+  if (snakeState.snake.some(s => s.x === newHead.x && s.y === newHead.y)) {
+    snakeDie();
+    return;
+  }
+
+  snakeState.snake.unshift(newHead);
+
+  // Check letter collision
+  const word = snakeWords[snakeWordIdx].word.replace(/\s/g, '');
+  const hitLetter = snakeState.letters.find(l => l.x === newHead.x && l.y === newHead.y && !l.eaten);
+
+  if (hitLetter) {
+    if (hitLetter.char === word[snakeLetterIdx]) {
+      hitLetter.eaten = true;
+      snakeLetterIdx++;
+      document.getElementById('snakeSpelled').textContent = word.slice(0, snakeLetterIdx);
+
+      if (snakeLetterIdx >= word.length) {
+        // Word complete!
+        const reward = word.length;
+        snakeFishEarned += reward;
+        state.fish += reward;
+        state.todayCorrect++;
+        state.lastStudyDate = new Date().toDateString();
+        document.getElementById('snakeFish').textContent = snakeFishEarned;
+        showToast(`✅ ${word} 完成！+${reward} 🐟`);
+
+        if (!state.wordProgress[snakeWords[snakeWordIdx].word]) {
+          state.wordProgress[snakeWords[snakeWordIdx].word] = { learned: true, stars: 0, lastReview: null, reviewIndex: 0 };
+        }
+        state.wordProgress[snakeWords[snakeWordIdx].word].stars = Math.min(5, (state.wordProgress[snakeWords[snakeWordIdx].word].stars || 0) + 1);
+        state.wordProgress[snakeWords[snakeWordIdx].word].lastReview = new Date().toDateString();
+        saveState();
+        updateTopBar();
+
+        snakeWordIdx++;
+        if (snakeWordIdx >= snakeWords.length) {
+          snakeWin();
+          return;
+        }
+        setTimeout(() => initSnakeRound(), 800);
+        return;
+      }
+    } else {
+      // Wrong letter
+      snakeLives--;
+      document.getElementById('snakeLives').textContent = snakeLives;
+      showToast(`❌ 需要字母 "${word[snakeLetterIdx]}"`);
+      if (snakeLives <= 0) {
+        snakeDie();
+        return;
+      }
+    }
+  } else {
+    snakeState.snake.pop();
+  }
+
+  renderSnake();
+}
+
+function snakeDie() {
+  clearInterval(snakeInterval);
+  snakeInterval = null;
+  const el = document.getElementById('snakeGameover');
+  document.getElementById('snakeOverTitle').textContent = '游戏结束 💀';
+  document.getElementById('snakeOverDetail').textContent = `完成了 ${snakeWordIdx} 个单词`;
+  document.getElementById('snakeOverReward').textContent = `获得 🐟 ${snakeFishEarned} 鱼干`;
+  el.classList.add('active');
+  saveState();
+  checkAchievements();
+}
+
+function snakeWin() {
+  clearInterval(snakeInterval);
+  snakeInterval = null;
+  const el = document.getElementById('snakeGameover');
+  document.getElementById('snakeOverTitle').textContent = '全部通关！🎉';
+  document.getElementById('snakeOverDetail').textContent = `太厉害了，完成全部 ${snakeWords.length} 个单词！`;
+  document.getElementById('snakeOverReward').textContent = `获得 🐟 ${snakeFishEarned} 鱼干`;
+  el.classList.add('active');
+  spawnConfetti();
+  saveState();
+  checkAchievements();
+}
+
+function renderSnake() {
+  const canvas = document.getElementById('snakeCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid dots
+  ctx.fillStyle = '#F0F0F0';
+  for (let x = 0; x < SNAKE_GRID; x++) {
+    for (let y = 0; y < SNAKE_GRID; y++) {
+      ctx.beginPath();
+      ctx.arc(x * SNAKE_CELL + SNAKE_CELL/2, y * SNAKE_CELL + SNAKE_CELL/2, 1, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // Letters
+  const word = snakeWords[snakeWordIdx].word.replace(/\s/g, '');
+  snakeState.letters.forEach(l => {
+    if (l.eaten) return;
+    const isNext = l.char === word[snakeLetterIdx] && !snakeState.letters.slice(0, l.index).some(prev => prev.char === l.char && !prev.eaten);
+    ctx.fillStyle = isNext ? '#00B894' : '#636E72';
+    ctx.beginPath();
+    ctx.roundRect(l.x * SNAKE_CELL + 2, l.y * SNAKE_CELL + 2, SNAKE_CELL - 4, SNAKE_CELL - 4, 4);
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(l.char.toUpperCase(), l.x * SNAKE_CELL + SNAKE_CELL/2, l.y * SNAKE_CELL + SNAKE_CELL/2);
+  });
+
+  // Snake body
+  snakeState.snake.forEach((s, i) => {
+    const radius = i === 0 ? 4 : 3;
+    if (i === 0) {
+      ctx.fillStyle = '#FF6B9D';
+    } else {
+      ctx.fillStyle = `hsl(340, 80%, ${65 + i * 2}%)`;
+    }
+    ctx.beginPath();
+    ctx.roundRect(s.x * SNAKE_CELL + 2, s.y * SNAKE_CELL + 2, SNAKE_CELL - 4, SNAKE_CELL - 4, radius);
+    ctx.fill();
+
+    if (i === 0) {
+      ctx.fillStyle = 'white';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('😺', s.x * SNAKE_CELL + SNAKE_CELL/2, s.y * SNAKE_CELL + SNAKE_CELL/2);
+    }
+  });
+}
+
+// Keyboard controls for snake
+document.addEventListener('keydown', (e) => {
+  if (!snakeState || !snakeInterval) return;
+  switch(e.key) {
+    case 'ArrowUp': case 'w': case 'W': snakeDir(0, -1); e.preventDefault(); break;
+    case 'ArrowDown': case 's': case 'S': snakeDir(0, 1); e.preventDefault(); break;
+    case 'ArrowLeft': case 'a': case 'A': snakeDir(-1, 0); e.preventDefault(); break;
+    case 'ArrowRight': case 'd': case 'D': snakeDir(1, 0); e.preventDefault(); break;
+  }
+});
+
+// Touch controls for snake
+(function() {
+  let touchStartX = 0, touchStartY = 0;
+  const canvas = document.getElementById('snakeCanvas');
+  canvas.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, {passive: true});
+  canvas.addEventListener('touchend', (e) => {
+    if (!snakeState || !snakeInterval) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      snakeDir(dx > 0 ? 1 : -1, 0);
+    } else {
+      snakeDir(0, dy > 0 ? 1 : -1);
+    }
+  }, {passive: true});
+})();
+
+// ========== SPELLING GAME ==========
+let spellWords = [];
+let spellIndex = 0;
+let spellCurrent = '';
+let spellInput = [];
+let spellFishEarned = 0;
+let spellTimer = null;
+let spellTimeLeft = 0;
+
+function openSpell() {
+  spellWords = shuffle([...WORD_DB]).slice(0, 10);
+  spellIndex = 0;
+  spellFishEarned = 0;
+  document.getElementById('spellFish').textContent = '0';
+  showPage('page-spell');
+  renderSpellWord();
+}
+
+function exitSpell() {
+  clearInterval(spellTimer);
+  if (spellFishEarned > 0) {
+    state.fish += spellFishEarned;
+    saveState();
+    updateTopBar();
+  }
+  showPage('page-home');
+}
+
+function renderSpellWord() {
+  if (spellIndex >= spellWords.length) {
+    finishSpell();
+    return;
+  }
+
+  clearInterval(spellTimer);
+  const w = spellWords[spellIndex];
+  spellCurrent = w.word.replace(/\s/g, '').toLowerCase();
+  spellInput = [];
+  document.getElementById('spellMeaning').textContent = w.meaning;
+  document.getElementById('spellProgress').textContent = `${spellIndex + 1}/${spellWords.length}`;
+  document.getElementById('spellHint').textContent = `${spellCurrent.length} 个字母`;
+
+  // Render blanks
+  const blanksEl = document.getElementById('spellBlanks');
+  blanksEl.innerHTML = '';
+  for (let i = 0; i < spellCurrent.length; i++) {
+    const blank = document.createElement('div');
+    blank.className = 'spell-blank';
+    blank.id = `spell-b-${i}`;
+    blanksEl.appendChild(blank);
+  }
+
+  // Render scrambled letters
+  const letters = shuffle(spellCurrent.split(''));
+  // Add 2-3 random distractors
+  const distractors = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => !spellCurrent.includes(c));
+  const numExtra = Math.min(3, Math.max(1, 8 - spellCurrent.length));
+  for (let i = 0; i < numExtra; i++) {
+    letters.push(distractors[Math.floor(Math.random() * distractors.length)]);
+  }
+  shuffle(letters);
+
+  const lettersEl = document.getElementById('spellLetters');
+  lettersEl.innerHTML = '';
+  letters.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'spell-letter';
+    btn.textContent = ch;
+    btn.id = `spell-l-${i}`;
+    btn.onclick = () => spellTap(i, ch);
+    lettersEl.appendChild(btn);
+  });
+
+  // Timer: 30 seconds per word
+  spellTimeLeft = 30;
+  document.getElementById('spellTimerText').textContent = '30s';
+  document.getElementById('spellTimerFill').style.width = '100%';
+  spellTimer = setInterval(() => {
+    spellTimeLeft--;
+    document.getElementById('spellTimerText').textContent = spellTimeLeft + 's';
+    document.getElementById('spellTimerFill').style.width = (spellTimeLeft / 30 * 100) + '%';
+    if (spellTimeLeft <= 0) {
+      clearInterval(spellTimer);
+      spellTimeout();
+    }
+  }, 1000);
+}
+
+function spellTap(btnIdx, ch) {
+  if (spellInput.length >= spellCurrent.length) return;
+
+  const pos = spellInput.length;
+  const correct = spellCurrent[pos] === ch;
+
+  spellInput.push({ch, btnIdx});
+  document.getElementById(`spell-b-${pos}`).textContent = ch;
+  document.getElementById(`spell-b-${pos}`).classList.add(correct ? 'filled' : 'wrong');
+  document.getElementById(`spell-l-${btnIdx}`).classList.add('used');
+
+  if (!correct) {
+    showToast('❌ 字母顺序不对');
+    setTimeout(() => {
+      // Reset this letter
+      spellInput.pop();
+      document.getElementById(`spell-b-${pos}`).textContent = '';
+      document.getElementById(`spell-b-${pos}`).classList.remove('filled', 'wrong');
+      document.getElementById(`spell-l-${btnIdx}`).classList.remove('used');
+    }, 400);
+    return;
+  }
+
+  if (spellInput.length === spellCurrent.length) {
+    // Word complete!
+    clearInterval(spellTimer);
+    const bonus = spellTimeLeft > 20 ? 3 : spellTimeLeft > 10 ? 2 : 1;
+    const reward = bonus + 1;
+    spellFishEarned += reward;
+    state.todayCorrect++;
+    state.lastStudyDate = new Date().toDateString();
+    document.getElementById('spellFish').textContent = spellFishEarned;
+    showToast(`✅ 正确！+${reward} 🐟`);
+
+    const w = spellWords[spellIndex];
+    if (!state.wordProgress[w.word]) {
+      state.wordProgress[w.word] = { learned: true, stars: 0, lastReview: null, reviewIndex: 0 };
+    }
+    state.wordProgress[w.word].stars = Math.min(5, (state.wordProgress[w.word].stars || 0) + 1);
+    state.wordProgress[w.word].lastReview = new Date().toDateString();
+    saveState();
+    updateTopBar();
+
+    setTimeout(() => {
+      spellIndex++;
+      renderSpellWord();
+    }, 1000);
+  }
+}
+
+function spellUndo() {
+  if (spellInput.length === 0) return;
+  const last = spellInput.pop();
+  const pos = spellInput.length;
+  document.getElementById(`spell-b-${pos}`).textContent = '';
+  document.getElementById(`spell-b-${pos}`).classList.remove('filled', 'wrong');
+  document.getElementById(`spell-l-${last.btnIdx}`).classList.remove('used');
+}
+
+function spellSkip() {
+  clearInterval(spellTimer);
+  showToast(`答案是: ${spellCurrent}`);
+  setTimeout(() => {
+    spellIndex++;
+    renderSpellWord();
+  }, 1500);
+}
+
+function spellTimeout() {
+  showToast(`⏰ 时间到！答案是: ${spellCurrent}`);
+  setTimeout(() => {
+    spellIndex++;
+    renderSpellWord();
+  }, 1500);
+}
+
+function finishSpell() {
+  clearInterval(spellTimer);
+  state.fish += spellFishEarned;
+  saveState();
+  checkAchievements();
+  showResult(
+    '🔤',
+    '拼写挑战结束！',
+    `完成了 ${spellWords.length} 个单词`,
+    `获得 🐟 ${spellFishEarned} 鱼干`,
+    ''
+  );
+  spellFishEarned = 0;
+}
+
+// ========== LISTEN GAME ==========
+let listenWords = [];
+let listenIndex = 0;
+let listenFishEarned = 0;
+let listenAnswered = false;
+
+function openListen() {
+  if (!window.speechSynthesis) {
+    showToast('你的浏览器不支持语音功能');
+    return;
+  }
+  listenWords = shuffle([...WORD_DB]).slice(0, 10);
+  listenIndex = 0;
+  listenFishEarned = 0;
+  listenAnswered = false;
+  document.getElementById('listenFish').textContent = '0';
+  showPage('page-listen');
+  renderListenWord();
+}
+
+function exitListen() {
+  if (listenFishEarned > 0) {
+    state.fish += listenFishEarned;
+    saveState();
+    updateTopBar();
+  }
+  showPage('page-home');
+}
+
+function renderListenWord() {
+  if (listenIndex >= listenWords.length) {
+    finishListen();
+    return;
+  }
+  listenAnswered = false;
+  document.getElementById('listenProgress').textContent = `${listenIndex + 1}/${listenWords.length}`;
+  document.getElementById('listenInput').value = '';
+  document.getElementById('listenInput').className = 'listen-input';
+  document.getElementById('listenInput').disabled = false;
+  document.getElementById('listenSubmitBtn').style.display = '';
+  document.getElementById('listenAnswer').innerHTML = '';
+  document.getElementById('listenActions').style.display = 'none';
+
+  setTimeout(() => playListenWord(), 500);
+}
+
+function playListenWord() {
+  if (listenIndex >= listenWords.length) return;
+  const w = listenWords[listenIndex];
+  const speaker = document.getElementById('listenSpeaker');
+  speaker.classList.add('playing');
+
+  const utter = new SpeechSynthesisUtterance(w.word);
+  utter.lang = 'en-US';
+  utter.rate = 0.8;
+  utter.onend = () => speaker.classList.remove('playing');
+  utter.onerror = () => speaker.classList.remove('playing');
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+function checkListen() {
+  if (listenAnswered) return;
+  const w = listenWords[listenIndex];
+  const input = document.getElementById('listenInput').value.trim().toLowerCase();
+
+  if (!input) {
+    showToast('请先输入单词');
+    return;
+  }
+
+  listenAnswered = true;
+  const correct = input === w.word.toLowerCase();
+  const inputEl = document.getElementById('listenInput');
+  inputEl.disabled = true;
+  document.getElementById('listenSubmitBtn').style.display = 'none';
+
+  if (correct) {
+    inputEl.classList.add('correct');
+    const reward = 2;
+    listenFishEarned += reward;
+    state.todayCorrect++;
+    state.lastStudyDate = new Date().toDateString();
+    document.getElementById('listenFish').textContent = listenFishEarned;
+    document.getElementById('listenAnswer').innerHTML = `<span class="correct-word">✅ 正确！</span> <span class="meaning">${w.meaning}</span>`;
+    showToast(`✅ +${reward} 🐟`);
+
+    if (!state.wordProgress[w.word]) {
+      state.wordProgress[w.word] = { learned: true, stars: 0, lastReview: null, reviewIndex: 0 };
+    }
+    state.wordProgress[w.word].stars = Math.min(5, (state.wordProgress[w.word].stars || 0) + 1);
+    state.wordProgress[w.word].lastReview = new Date().toDateString();
+    saveState();
+    updateTopBar();
+  } else {
+    inputEl.classList.add('wrong');
+    document.getElementById('listenAnswer').innerHTML = `❌ 正确答案：<span class="correct-word">${w.word}</span> <span class="meaning">${w.meaning}</span>`;
+    showToast('❌ 没关系，记住这个词');
+  }
+
+  document.getElementById('listenActions').style.display = 'flex';
+}
+
+function nextListen() {
+  listenIndex++;
+  renderListenWord();
+}
+
+function finishListen() {
+  state.fish += listenFishEarned;
+  saveState();
+  checkAchievements();
+  showResult(
+    '🎧',
+    '听写完成！',
+    `完成了 ${listenWords.length} 个单词`,
+    `获得 🐟 ${listenFishEarned} 鱼干`,
+    ''
+  );
+  listenFishEarned = 0;
+}
+
+// Enter key for listen input
+document.getElementById('listenInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (listenAnswered) nextListen();
+    else checkListen();
+  }
+});
+
+// ========== START ==========
+init();
+</script>
+</body>
+</html>
