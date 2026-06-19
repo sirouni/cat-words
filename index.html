@@ -244,6 +244,8 @@ body {
 /* ===== Animated Cat (in room) ===== */
 .cat-sprite {
   position: absolute;
+  left: 50%;
+  bottom: 30px;
   z-index: 5;
   transition: left 1.8s ease-in-out, bottom 1.8s ease-in-out;
   pointer-events: none;
@@ -257,7 +259,17 @@ body {
 }
 /* Walking animation overrides breathing */
 .cat-sprite.walking .cat-body-wrap {
-  animation: catWalk 0.3s ease-in-out infinite;
+  animation: catWalk 0.35s ease-in-out infinite;
+}
+.cat-sprite.walking .cat-paw:first-child {
+  animation: pawStep 0.35s ease-in-out infinite;
+}
+.cat-sprite.walking .cat-paw:last-child {
+  animation: pawStep 0.35s ease-in-out 0.175s infinite;
+}
+@keyframes pawStep {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 @keyframes catWalk {
   0%, 100% { transform: translateY(0); }
@@ -1905,7 +1917,7 @@ function feedCat() {
   const bowlSpot = CAT_SPOTS.find(s => s.id === 'bowl');
   sprite.classList.remove('sleeping', 'playing');
   sprite.classList.add('walking');
-  sprite.style.left = bowlSpot.left + 'px';
+  sprite.style.left = bowlSpot.pct + '%';
   sprite.style.bottom = bowlSpot.bottom + 'px';
   setTimeout(() => {
     sprite.classList.remove('walking');
@@ -1956,12 +1968,12 @@ function showFishAnimation() {
 
 // ========== ROOM AI: Cat wanders around the room ==========
 const CAT_SPOTS = [
-  { id: 'bed',    left: 20,  bottom: 28, bubble: '💤 好困呀~',    action: 'sleeping' },
-  { id: 'bowl',   left: 230, bottom: 22, bubble: '🐟 吃鱼干~',   action: 'happy' },
-  { id: 'window', left: 260, bottom: 60, bubble: '🌤️ 看风景~',   action: '' },
-  { id: 'yarn',   left: 300, bottom: 24, bubble: '🧶 好好玩！',   action: 'playing' },
-  { id: 'center', left: 150, bottom: 30, bubble: '😺 散步~',     action: '' },
-  { id: 'shelf',  left: 80,  bottom: 50, bubble: '📚 这是什么？', action: '' },
+  { id: 'bed',    pct: 8,   bottom: 28, bubble: '💤 好困呀~',    action: 'sleeping' },
+  { id: 'bowl',   pct: 58,  bottom: 22, bubble: '🐟 吃鱼干~',   action: 'happy' },
+  { id: 'window', pct: 68,  bottom: 60, bubble: '🌤️ 看风景~',   action: '' },
+  { id: 'yarn',   pct: 80,  bottom: 24, bubble: '🧶 好好玩！',   action: 'playing' },
+  { id: 'center', pct: 40,  bottom: 30, bubble: '😺 散步~',     action: '' },
+  { id: 'shelf',  pct: 22,  bottom: 50, bubble: '📚 这是什么？', action: '' },
 ];
 let catCurrentSpot = 0;
 let catRoamTimer = null;
@@ -1984,12 +1996,12 @@ function moveCatToSpot(idx) {
   const oldSpot = CAT_SPOTS[catCurrentSpot];
 
   // Face direction based on movement
-  const goingLeft = spot.left < oldSpot.left;
+  const goingLeft = spot.pct < oldSpot.pct;
   sprite.classList.remove('sleeping', 'playing', 'happy', 'show-bubble', 'face-left');
   sprite.classList.add('walking');
   if (goingLeft) sprite.classList.add('face-left');
 
-  sprite.style.left = spot.left + 'px';
+  sprite.style.left = spot.pct + '%';
   sprite.style.bottom = spot.bottom + 'px';
 
   catCurrentSpot = idx;
